@@ -1,5 +1,4 @@
 import { BoardState } from '../const/BoardState'
-import { CONST } from '../const/const'
 import Candy from '../objects/Candy'
 import GameScene from '../scenes/GameScene'
 import BoardStateMachine from './BoardStateMachine'
@@ -40,12 +39,8 @@ export default class CandySelection {
             } else {
                 this.secondSelectedCandy = gameobject
 
-                const dx =
-                    Math.abs(this.firstSelectedCandy.x - this.secondSelectedCandy.x) /
-                    CONST.tileWidth
-                const dy =
-                    Math.abs(this.firstSelectedCandy.y - this.secondSelectedCandy.y) /
-                    CONST.tileHeight
+                const dx = Math.abs(this.firstSelectedCandy.gridX - this.secondSelectedCandy.gridX)
+                const dy = Math.abs(this.firstSelectedCandy.gridY - this.secondSelectedCandy.gridY)
 
                 if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
                     BoardStateMachine.getInstance().updateState(BoardState.SWAP)

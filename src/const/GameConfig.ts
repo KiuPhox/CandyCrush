@@ -1,6 +1,6 @@
 import { CANDY_TYPE } from './CandyType'
 
-export const CONST = {
+export const GAME_CONFIG = {
     score: 0,
     highscore: 0,
     gridWidth: 8,

@@ -1,16 +1,20 @@
 import { BlendModes } from 'phaser'
 import { CANDY_COLORS, CANDY_TYPE } from '../const/CandyType'
-import { Random } from '../utils/Random'
 import { ICandy } from '../types/tile'
+import { Random } from '../utils/Random'
 
 export default class Candy extends Phaser.GameObjects.Image {
     public candyType: CANDY_TYPE
+    public gridX: number
+    public gridY: number
 
     constructor(iCandy: ICandy) {
         super(iCandy.scene, iCandy.x, iCandy.y, iCandy.texture, iCandy.frame)
+        this.gridX = iCandy.gridX
+        this.gridY = iCandy.gridY
         this.candyType = iCandy.candyType
 
-        this.setOrigin(0, 0).setScale(0.7).setInteractive()
+        this.setScale(0.7).setInteractive()
 
         this.scene.add.existing(this)
     }
@@ -23,7 +27,7 @@ export default class Candy extends Phaser.GameObjects.Image {
     private playDestroyEffect(): void {
         const { x, y } = this.getCenter()
 
-        this.scene.add.particles(x, y, 'particle-1', {
+        const p1 = this.scene.add.particles(x, y, 'particle-1', {
             color: [CANDY_COLORS[this.candyType]],
             lifespan: 500,
             angle: { min: 0, max: 360 },
@@ -42,7 +46,7 @@ export default class Candy extends Phaser.GameObjects.Image {
             stopAfter: Phaser.Math.RND.between(2, 3),
         })
 
-        this.scene.add.particles(x, y, 'particle-2', {
+        const p2 = this.scene.add.particles(x, y, 'particle-2', {
             lifespan: 500,
             angle: { min: 0, max: 360 },
             rotate: {
@@ -63,7 +67,7 @@ export default class Candy extends Phaser.GameObjects.Image {
             stopAfter: Phaser.Math.RND.between(3, 5),
         })
 
-        this.scene.add.particles(x, y, 'particle-3', {
+        const p3 = this.scene.add.particles(x, y, 'particle-3', {
             color: [CANDY_COLORS[this.candyType]],
             lifespan: 500,
             alpha: { start: 1, end: 0, ease: 'Quad.out' },
@@ -72,5 +76,16 @@ export default class Candy extends Phaser.GameObjects.Image {
             blendMode: BlendModes.ADD,
             stopAfter: 1,
         })
+
+        this.scene.time.delayedCall(800, () => {
+            p1.destroy()
+            p2.destroy()
+            p3.destroy()
+        })
+    }
+
+    public setGrid(x: number, y: number) {
+        this.gridX = x
+        this.gridY = y
     }
 }

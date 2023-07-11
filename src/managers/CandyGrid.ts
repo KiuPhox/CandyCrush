@@ -1,9 +1,8 @@
 import { BlendModes } from 'phaser'
 import { CANDY_TYPE } from '../const/CandyType'
-import { CONST } from '../const/const'
+import { GAME_CONFIG } from '../const/GameConfig'
 import Candy from '../objects/Candy'
 import GameScene from '../scenes/GameScene'
-import CandySelection from './CandySelection'
 import { BoardState } from '../const/BoardState'
 import BoardStateMachine from './BoardStateMachine'
 
@@ -17,15 +16,21 @@ export default class CandyGrid {
         this.scene = scene
         this.grid = []
         this.candyGridOffset = new Phaser.Math.Vector2(
-            (scene.scale.width - CONST.gridWidth * CONST.tileWidth) / 2,
-            (scene.scale.height - CONST.gridHeight * CONST.tileHeight) / 2
+            (scene.scale.width -
+                GAME_CONFIG.gridWidth * GAME_CONFIG.tileWidth +
+                GAME_CONFIG.tileWidth) /
+                2,
+            (scene.scale.height -
+                GAME_CONFIG.gridHeight * GAME_CONFIG.tileHeight +
+                GAME_CONFIG.tileWidth) /
+                2
         )
     }
 
     public static create(): (Candy | undefined)[][] {
-        for (let y = 0; y < CONST.gridHeight; y++) {
+        for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
             this.grid[y] = []
-            for (let x = 0; x < CONST.gridWidth; x++) {
+            for (let x = 0; x < GAME_CONFIG.gridWidth; x++) {
                 this.grid[y][x] = this.addCandy(x, y)
             }
         }
@@ -35,14 +40,16 @@ export default class CandyGrid {
     private static addCandy(x: number, y: number): Candy {
         // Get a random candy
         const randomCandyType: CANDY_TYPE =
-            CONST.candyTypes[Phaser.Math.RND.between(0, CONST.candyTypes.length - 1)]
+            GAME_CONFIG.candyTypes[Phaser.Math.RND.between(0, GAME_CONFIG.candyTypes.length - 1)]
 
         // Return the created candy
         return new Candy({
             scene: this.scene,
             candyType: randomCandyType,
-            x: x * CONST.tileWidth + this.candyGridOffset.x,
-            y: y * CONST.tileHeight + this.candyGridOffset.y,
+            x: x * GAME_CONFIG.tileWidth + this.candyGridOffset.x,
+            y: y * GAME_CONFIG.tileHeight + this.candyGridOffset.y,
+            gridX: x,
+            gridY: y,
             texture: randomCandyType,
         })
     }
@@ -50,7 +57,7 @@ export default class CandyGrid {
     public static fillCandy(): Promise<void> {
         return new Promise<void>((resolve) => {
             const veticalGrid: Candy[][] = []
-            for (let y = 0; y < CONST.gridHeight; y++) {
+            for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
                 veticalGrid[y] = []
             }
             //Check for blank spaces in the grid and add new tiles at that position
@@ -68,10 +75,10 @@ export default class CandyGrid {
             for (let i = 0; i < veticalGrid.length; i++) {
                 for (let j = 0; j < veticalGrid[i].length; j++) {
                     const candy = veticalGrid[i][j]
-                    candy.y -= CONST.tileHeight * veticalGrid[i].length
+                    candy.y -= GAME_CONFIG.tileHeight * veticalGrid[i].length
                     this.scene.add.tween({
                         targets: candy,
-                        y: candy.y + CONST.tileHeight * veticalGrid[i].length,
+                        y: candy.y + GAME_CONFIG.tileHeight * veticalGrid[i].length,
                         ease: 'Bounce.out',
                         duration: 500,
                     })
@@ -100,9 +107,12 @@ export default class CandyGrid {
                     this.grid[t][x] = tempCandy
                     this.grid[t - 1][x] = undefined
 
+                    tempCandy?.setGrid(x, t)
+                    this.grid[t - 1][x]?.setGrid(x, t - 1)
+
                     this.scene.add.tween({
                         targets: tempCandy,
-                        y: CONST.tileHeight * t + CandyGrid.candyGridOffset.y,
+                        y: GAME_CONFIG.tileHeight * t + CandyGrid.candyGridOffset.y,
                         ease: 'Bounce.out',
                         duration: 500,
                     })
@@ -121,15 +131,17 @@ export default class CandyGrid {
             // Get the position of the two tiles
             BoardStateMachine.getInstance().updateState(BoardState.SWAP)
 
-            const firstX = firstCandy.x - CandyGrid.candyGridOffset.x
-            const secondX = secondCandy.x - CandyGrid.candyGridOffset.x
+            const firstX = firstCandy.gridX
+            const firstY = firstCandy.gridY
 
-            const firstY = firstCandy.y - CandyGrid.candyGridOffset.y
-            const secondY = secondCandy.y - CandyGrid.candyGridOffset.y
-
+            const secondX = secondCandy.gridX
+            const secondY = secondCandy.gridY
             // Swap them in our grid with the tiles
-            this.grid[firstY / CONST.tileHeight][firstX / CONST.tileWidth] = secondCandy
-            this.grid[secondY / CONST.tileHeight][secondX / CONST.tileWidth] = firstCandy
+            this.grid[firstY][firstX] = secondCandy
+            this.grid[secondY][secondX] = firstCandy
+
+            secondCandy.setGrid(firstX, firstY)
+            firstCandy.setGrid(secondX, secondY)
 
             // Add particle when candies move
             const p1 = this.scene.add.particles(32, 32, 'particle-3', {
@@ -153,7 +165,7 @@ export default class CandyGrid {
             })
             // Move them on the screen with tweens
             this.scene.add.tween({
-                targets: CandySelection.firstSelectedCandy,
+                targets: firstCandy,
                 x: secondCandy.x,
                 y: secondCandy.y,
                 ease: 'Quad.out',
@@ -167,7 +179,7 @@ export default class CandyGrid {
             })
 
             this.scene.add.tween({
-                targets: CandySelection.secondSelectedCandy,
+                targets: secondCandy,
                 x: firstCandy.x,
                 y: firstCandy.y,
                 ease: 'Quad.out',
@@ -183,10 +195,8 @@ export default class CandyGrid {
                 },
             })
 
-            CandySelection.firstSelectedCandy =
-                this.grid[firstY / CONST.tileHeight][firstX / CONST.tileWidth]
-            CandySelection.secondSelectedCandy =
-                this.grid[secondY / CONST.tileHeight][secondX / CONST.tileWidth]
+            // firstCandy = this.grid[firstY][firstX]
+            // secondCandy = this.grid[secondY][secondX]
         }
     }
 
@@ -219,6 +229,59 @@ export default class CandyGrid {
         }
 
         return pos
+    }
+
+    public static getHints(): Candy[][] {
+        const swapCandies = (a: Phaser.Math.Vector2, b: Phaser.Math.Vector2) => {
+            if (a && b) {
+                const candyA = this.grid[a.x][a.y] as Candy
+                const candyB = this.grid[b.x][b.y] as Candy
+
+                const temp = candyA
+                this.grid[a.x][a.y] = candyB
+                this.grid[b.x][b.y] = temp
+            }
+        }
+
+        for (let y = 0; y < this.grid.length; y++) {
+            for (let x = 0; x < this.grid[y].length - 1; x++) {
+                // Swap candies and check for matches
+                const a = new Phaser.Math.Vector2(y, x)
+                const b = new Phaser.Math.Vector2(y, x + 1)
+                swapCandies(a, b)
+                const matches = this.getMatches()
+
+                // If matches are found, this is a valid hint
+                if (matches.length > 0) {
+                    swapCandies(a, b) // Swap back to original positions
+                    return matches
+                }
+
+                // Swap candies back to original positions
+                swapCandies(a, b)
+            }
+        }
+
+        // Check for vertical hints
+        for (let x = 0; x < this.grid[0].length; x++) {
+            for (let y = 0; y < this.grid.length - 1; y++) {
+                // Swap candies and check for matches
+                const a = new Phaser.Math.Vector2(y, x)
+                const b = new Phaser.Math.Vector2(y + 1, x)
+                swapCandies(a, b)
+                const matches = this.getMatches()
+
+                // If matches are found, this is a valid hint
+                if (matches.length > 0) {
+                    swapCandies(a, b) // Swap back to original positions
+                    return matches
+                }
+
+                // Swap candies back to original positions
+                swapCandies(a, b)
+            }
+        }
+        return []
     }
 
     public static getMatches(): Candy[][] {
