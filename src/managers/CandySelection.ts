@@ -50,6 +50,8 @@ export default class CandySelection {
                 if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
                     BoardStateMachine.getInstance().updateState(BoardState.SWAP)
                     CandyGrid.swapCandies(this.firstSelectedCandy, this.secondSelectedCandy)
+                } else {
+                    this.firstSelectedCandy = undefined
                 }
                 this.selectedFrame.setVisible(false)
             }
