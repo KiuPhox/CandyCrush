@@ -1,0 +1,51 @@
+{
+    "preload": {
+        "files": [
+            {
+                "type": "image",
+                "key": "blue",
+                "url": "./assets/images/blue.png"
+            },
+            {
+                "type": "image",
+                "key": "green",
+                "url": "./assets/images/green.png"
+            },
+            {
+                "type": "image",
+                "key": "orange",
+                "url": "./assets/images/orange.png"
+            },
+            {
+                "type": "image",
+                "key": "purple",
+                "url": "./assets/images/purple.png"
+            },
+            {
+                "type": "image",
+                "key": "red",
+                "url": "./assets/images/red.png"
+            },
+            {
+                "type": "image",
+                "key": "yellow",
+                "url": "./assets/images/yellow.png"
+            },
+            {
+                "type": "image",
+                "key": "particle-1",
+                "url": "./assets/images/particle-1.png"
+            },
+            {
+                "type": "image",
+                "key": "particle-2",
+                "url": "./assets/images/particle-2.png"
+            },
+            {
+                "type": "image",
+                "key": "particle-3",
+                "url": "./assets/images/particle-3.png"
+            }
+        ]
+    }
+}
