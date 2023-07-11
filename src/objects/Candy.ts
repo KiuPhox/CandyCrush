@@ -1,7 +1,7 @@
 import { BlendModes } from 'phaser'
 import { CANDY_COLORS, CANDY_TYPE } from '../const/CandyType'
-import { ICandy } from '../interfaces/tile'
 import { Random } from '../utils/Random'
+import { ICandy } from '../types/tile'
 
 export default class Candy extends Phaser.GameObjects.Image {
     public candyType: CANDY_TYPE
