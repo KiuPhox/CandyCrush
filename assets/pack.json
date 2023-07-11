@@ -45,6 +45,11 @@
                 "type": "image",
                 "key": "particle-3",
                 "url": "./assets/images/particle-3.png"
+            },
+            {
+                "type": "image",
+                "key": "selected-frame",
+                "url": "./assets/images/selected-frame.png"
             }
         ]
     }
