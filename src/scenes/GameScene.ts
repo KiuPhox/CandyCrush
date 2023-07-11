@@ -115,6 +115,27 @@ export default class GameScene extends Phaser.Scene {
                 this.secondSelectedCandy
             this.candyGrid[secondY / CONST.tileHeight][secondX / CONST.tileWidth] =
                 this.firstSelectedCandy
+
+            // Add particle when candies move
+            const p1 = this.add.particles(32, 32, 'particle-3', {
+                color: [0xfffff],
+                lifespan: 500,
+                alpha: { start: 1, end: 0, ease: 'Quad.out' },
+                scale: { start: 1, end: 0, ease: 'Quart.in' },
+                duration: 300,
+                blendMode: BlendModes.ADD,
+                stopAfter: 1,
+            })
+
+            const p2 = this.add.particles(32, 32, 'particle-3', {
+                color: [0xfffff],
+                lifespan: 500,
+                alpha: { start: 1, end: 0, ease: 'Quad.out' },
+                scale: { start: 1, end: 0, ease: 'Quart.in' },
+                duration: 300,
+                blendMode: BlendModes.ADD,
+                stopAfter: 1,
+            })
             // Move them on the screen with tweens
             this.add.tween({
                 targets: this.firstSelectedCandy,
@@ -124,6 +145,10 @@ export default class GameScene extends Phaser.Scene {
                 duration: 200,
                 repeat: 0,
                 yoyo: false,
+                onUpdate: (tween: Phaser.Tweens.Tween, candy: Candy) => {
+                    p1.x = candy.getCenter().x ?? 0
+                    p1.y = candy.getCenter().y ?? 0
+                },
             })
 
             this.add.tween({
@@ -134,6 +159,10 @@ export default class GameScene extends Phaser.Scene {
                 duration: 200,
                 repeat: 0,
                 yoyo: false,
+                onUpdate: (tween: Phaser.Tweens.Tween, candy: Candy) => {
+                    p2.x = candy.getCenter().x ?? 0
+                    p2.y = candy.getCenter().y ?? 0
+                },
                 onComplete: () => {
                     this.checkMatches()
                 },
