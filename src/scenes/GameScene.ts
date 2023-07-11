@@ -1,8 +1,7 @@
 import { BlendModes } from 'phaser'
-import { CANDY_COLORS, CANDY_TYPE } from '../const/CandyType'
+import { CANDY_TYPE } from '../const/CandyType'
 import { CONST } from '../const/const'
 import Candy from '../objects/Candy'
-import { Random } from '../utils/Random'
 
 export default class GameScene extends Phaser.Scene {
     // Variables
@@ -16,6 +15,8 @@ export default class GameScene extends Phaser.Scene {
     // Selected candies
     private firstSelectedCandy: Candy | undefined
     private secondSelectedCandy: Candy | undefined
+
+    private selectedFrame: Phaser.GameObjects.Image
 
     constructor() {
         super('GameScene')
@@ -46,9 +47,21 @@ export default class GameScene extends Phaser.Scene {
             }
         }
 
-        // Selected Tiles
+        // Selected Candies
         this.firstSelectedCandy = undefined
         this.secondSelectedCandy = undefined
+        this.selectedFrame = this.add
+            .image(10, this.scale.height / 2, 'selected-frame')
+            .setScale(0.6)
+            .setVisible(false)
+
+        this.add.tween({
+            targets: this.selectedFrame,
+            scale: 0.65,
+            duration: 600,
+            repeat: -1,
+            yoyo: true,
+        })
 
         // Input
         this.input.on('gameobjectdown', this.candyDown, this)
@@ -75,6 +88,9 @@ export default class GameScene extends Phaser.Scene {
     private candyDown(pointer: PointerEvent, gameobject: Candy | undefined): void {
         if (this.canMove && gameobject) {
             if (!this.firstSelectedCandy) {
+                this.selectedFrame
+                    .setVisible(true)
+                    .setPosition(gameobject.getCenter().x, gameobject.getCenter().y)
                 this.firstSelectedCandy = gameobject
             } else {
                 // So if we are here, we must have selected a second tile
@@ -91,7 +107,10 @@ export default class GameScene extends Phaser.Scene {
                 if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
                     this.canMove = false
                     this.swapCandies()
+                } else {
+                    this.firstSelectedCandy = undefined
                 }
+                this.selectedFrame.setVisible(false)
             }
         }
     }
@@ -284,67 +303,15 @@ export default class GameScene extends Phaser.Scene {
         this.secondSelectedCandy = undefined
     }
 
-    private removeCandyGroup(matches: Candy[][]): void {
-        const flattenedMatches = matches.flat()
+    private removeCandyGroup(candyGroup: Candy[][]): void {
+        const flattenedGroup = candyGroup.flat()
         // Loop through all the matches and remove the associated tiles
-        for (const candy of flattenedMatches) {
+        for (const candy of flattenedGroup) {
             const candyPos = this.getTilePos(this.candyGrid as Candy[][], candy)
 
             if (candyPos.x !== -1 && candyPos.y !== -1) {
                 candy.destroy()
                 this.candyGrid[candyPos.y][candyPos.x] = undefined
-
-                const { x, y } = candy.getCenter()
-
-                this.add.particles(x, y, 'particle-1', {
-                    color: [CANDY_COLORS[candy.candyType]],
-                    lifespan: 500,
-                    angle: { min: 0, max: 360 },
-                    rotate: {
-                        start: Random.Float(0, 360),
-                        end: Random.Float(0, 360),
-                    },
-                    scale: {
-                        start: Random.Float(0.4, 0.5),
-                        end: 0,
-                        ease: 'Back.in',
-                    },
-                    speed: { min: 100, max: 120 },
-                    gravityY: 200,
-                    duration: 300,
-                    stopAfter: Phaser.Math.RND.between(2, 3),
-                })
-
-                this.add.particles(x, y, 'particle-2', {
-                    lifespan: 500,
-                    angle: { min: 0, max: 360 },
-                    rotate: {
-                        min: 0,
-                        max: 360,
-                        start: Random.Float(0, 360),
-                        end: Random.Float(0, 360),
-                    },
-                    scale: {
-                        start: Random.Float(1, 2),
-                        end: 0,
-                        ease: 'Back.in',
-                    },
-                    speed: { min: 100, max: 120 },
-                    gravityY: 200,
-                    duration: 300,
-                    blendMode: BlendModes.ADD,
-                    stopAfter: Phaser.Math.RND.between(3, 5),
-                })
-
-                this.add.particles(x, y, 'particle-3', {
-                    color: [CANDY_COLORS[candy.candyType]],
-                    lifespan: 500,
-                    alpha: { start: 1, end: 0, ease: 'Quad.out' },
-                    scale: { start: 0, end: 1, ease: 'Quart.out' },
-                    duration: 300,
-                    blendMode: BlendModes.ADD,
-                    stopAfter: 1,
-                })
             }
         }
     }
