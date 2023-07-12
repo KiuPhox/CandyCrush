@@ -33,6 +33,66 @@
             },
             {
                 "type": "image",
+                "key": "blue-vertical-striped",
+                "url": "./assets/images/blue-vertical-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "green-vertical-striped",
+                "url": "./assets/images/green-vertical-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "orange-vertical-striped",
+                "url": "./assets/images/orange-vertical-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "purple-vertical-striped",
+                "url": "./assets/images/purple-vertical-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "red-vertical-striped",
+                "url": "./assets/images/red-vertical-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "yellow-vertical-striped",
+                "url": "./assets/images/yellow-vertical-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "blue-horizontal-striped",
+                "url": "./assets/images/blue-horizontal-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "green-horizontal-striped",
+                "url": "./assets/images/green-horizontal-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "orange-horizontal-striped",
+                "url": "./assets/images/orange-horizontal-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "purple-horizontal-striped",
+                "url": "./assets/images/purple-horizontal-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "red-horizontal-striped",
+                "url": "./assets/images/red-horizontal-striped.png"
+            },
+            {
+                "type": "image",
+                "key": "yellow-horizontal-striped",
+                "url": "./assets/images/yellow-horizontal-striped.png"
+            },
+            {
+                "type": "image",
                 "key": "particle-1",
                 "url": "./assets/images/particle-1.png"
             },
@@ -50,6 +110,16 @@
                 "type": "image",
                 "key": "selected-frame",
                 "url": "./assets/images/selected-frame.png"
+            },
+            {
+                "type": "image",
+                "key": "progress-head",
+                "url": "./assets/images/hud/progress-head.png"
+            },
+            {
+                "type": "image",
+                "key": "progress-fill",
+                "url": "./assets/images/hud/progress-fill.png"
             }
         ]
     }

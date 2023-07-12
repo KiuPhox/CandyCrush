@@ -1,4 +1,4 @@
-import { CANDY_TYPE } from './CandyType'
+import { CANDY_TYPE } from './CandyConstant'
 
 export const GAME_CONFIG = {
     score: 0,
@@ -11,8 +11,8 @@ export const GAME_CONFIG = {
         CANDY_TYPE.BLUE,
         CANDY_TYPE.GREEN,
         CANDY_TYPE.ORANGE,
-        CANDY_TYPE.PURPLE,
-        CANDY_TYPE.RED,
-        CANDY_TYPE.YELLOW,
+        // CANDY_TYPE.PURPLE,
+        // CANDY_TYPE.RED,
+        // CANDY_TYPE.YELLOW,
     ],
 }

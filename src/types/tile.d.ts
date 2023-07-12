@@ -1,4 +1,4 @@
-import { CANDY_TYPE } from '../const/CandyType'
+import { CANDY_TYPE, SPECIAL_TYPE } from '../const/CandyConstant'
 
 export interface ICandy {
     scene: Phaser.Scene
@@ -7,6 +7,6 @@ export interface ICandy {
     gridX: number
     gridY: number
     candyType: CANDY_TYPE
-    texture: string
+    specialType: SPECIAL_TYPE
     frame?: string | number
 }

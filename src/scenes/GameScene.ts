@@ -3,20 +3,38 @@ import { GAME_CONFIG } from '../const/GameConfig'
 import BoardStateMachine from '../managers/BoardStateMachine'
 import CandyGrid from '../managers/CandyGrid'
 import CandySelection from '../managers/CandySelection'
+import { ParticleManager } from '../managers/ParticleManager'
+import ProgressBar from './screens/ProgressBar'
 
 export default class GameScene extends Phaser.Scene {
     private hintTween: Phaser.Tweens.Tween
+    private progressBar: ProgressBar
+    private rectangleMask: Phaser.GameObjects.Rectangle
+
+    private idleTimer: number
+
     constructor() {
         super('GameScene')
     }
 
     init(): void {
+        ParticleManager.init(this)
         CandyGrid.init(this)
         CandySelection.init(this)
 
-        // set background color
+        this.createRectangleMask()
+        this.progressBar = new ProgressBar(this)
+            .setDepth(2)
+            .setScale(0.5)
+            .setPosition(this.rectangleMask.getCenter().x, this.rectangleMask.getCenter().y)
         this.cameras.main.setBackgroundColor(0x78aade)
-        this.add
+        CandyGrid.create()
+        this.tryGetHint()
+        this.idleTimer = 5000
+    }
+
+    private createRectangleMask(): void {
+        this.rectangleMask = this.add
             .rectangle(
                 0,
                 0,
@@ -26,16 +44,12 @@ export default class GameScene extends Phaser.Scene {
             )
             .setOrigin(0)
             .setDepth(1)
-
-        CandyGrid.create()
-
-        // Check if matches on the start
-        this.checkMatches()
     }
 
     public checkMatches(): void {
         if (
             this.hintTween &&
+            !this.hintTween.isDestroyed() &&
             BoardStateMachine.getInstance().getCurrentState() !== BoardState.SWAP
         ) {
             this.hintTween.stop()
@@ -47,6 +61,7 @@ export default class GameScene extends Phaser.Scene {
 
         //If there are matches, remove them
         if (matches.length > 0) {
+            this.progressBar.updateProgress(this.progressBar.getProgress() + 1)
             BoardStateMachine.getInstance().updateState(BoardState.MATCH)
             //Remove the tiles
             CandyGrid.removeCandyGroup(matches)
@@ -59,47 +74,7 @@ export default class GameScene extends Phaser.Scene {
             })
         } else {
             if (BoardStateMachine.getInstance().getCurrentState() === BoardState.MATCH) {
-                const hint = CandyGrid.getHints()[0]
-
-                const defaultY: number[] = []
-                hint.forEach((h) => defaultY.push(h.y))
-
-                this.hintTween = this.tweens.addCounter({
-                    duration: 300,
-                    repeat: -1,
-                    from: 0,
-                    to: 1,
-                    yoyo: true,
-                    onUpdate: (t) => {
-                        hint.forEach((h, i) => {
-                            const bounce = Phaser.Math.Easing.Bounce.InOut(t.getValue())
-                            const quart = Phaser.Math.Easing.Quartic.In(t.getValue())
-                            h.setScale(0.7 + bounce * (0.7 - 0.75), 0.7 + bounce * (0.7 - 0.65))
-                            // h.y = defaultY[i] + quart * 10
-                        })
-                    },
-                    onStop: () => {
-                        hint.forEach((h) => {
-                            h.setScale(0.7)
-                        })
-                    },
-                })
-
-                // this.hintTween = this.add.tween({
-                //     targets: hint,
-                //     scaleX: 0.65,
-                //     scaleY: 0.75,
-                //     y: '-=5',
-                //     duration: 300,
-                //     repeat: -1,
-                //     ease: 'Quart.in',
-                //     yoyo: true,
-                //     onStop: () => {
-                //         hint.forEach((h) => {
-                //             h.setScale(0.7)
-                //         })
-                //     },
-                // })
+                this.tryGetHint()
             }
 
             // No match so just swap the tiles back to their original position and reset
@@ -116,6 +91,53 @@ export default class GameScene extends Phaser.Scene {
                     BoardStateMachine.getInstance().updateState(BoardState.IDLE)
                 },
             })
+        }
+    }
+
+    public tryGetHint(): void {
+        const hint = CandyGrid.getHints()[0]
+
+        const defaultY: number[] = []
+        if (hint) {
+            hint.candies.forEach((h) => defaultY.push(h.y))
+
+            this.hintTween = this.tweens.addCounter({
+                duration: 300,
+                repeat: -1,
+                from: 0,
+                to: 1,
+                yoyo: true,
+                onUpdate: (t) => {
+                    hint.candies.forEach((h, i) => {
+                        const bounce = Phaser.Math.Easing.Bounce.InOut(t.getValue())
+                        //const quart = Phaser.Math.Easing.Quartic.In(t.getValue())
+                        h.setScale(0.7 + bounce * (0.7 - 0.75), 0.7 + bounce * (0.7 - 0.65))
+                        // h.y = defaultY[i] + quart * 10
+                    })
+                },
+                onStop: () => {
+                    hint.candies.forEach((h) => {
+                        h.setScale(0.7)
+                    })
+                },
+            })
+        } else {
+            CandyGrid.clear()
+            CandyGrid.create()
+            this.checkMatches()
+            this.tryGetHint()
+        }
+    }
+
+    update(time: number, delta: number): void {
+        if (BoardStateMachine.getInstance().getCurrentState() === BoardState.IDLE) {
+            this.idleTimer -= delta
+            if (this.idleTimer <= 0) {
+                this.idleTimer = 3000
+                CandyGrid.playIdleEffect()
+            }
+        } else {
+            this.idleTimer = 5000
         }
     }
 }

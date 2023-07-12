@@ -1,20 +1,24 @@
 import { BlendModes } from 'phaser'
-import { CANDY_TYPE } from '../const/CandyType'
+import { CANDY_TYPE, SPECIAL_TYPE } from '../const/CandyConstant'
 import { GAME_CONFIG } from '../const/GameConfig'
 import Candy from '../objects/Candy'
 import GameScene from '../scenes/GameScene'
 import { BoardState } from '../const/BoardState'
 import BoardStateMachine from './BoardStateMachine'
+import { Random } from '../utils/Random'
+import { IMatch } from '../types/match'
 
 export default class CandyGrid {
     private static scene: GameScene
-
     public static grid: (Candy | undefined)[][]
     public static candyGridOffset: Phaser.Math.Vector2
+
+    private static swapEffects: Phaser.GameObjects.Particles.ParticleEmitter[]
 
     public static init(scene: GameScene): void {
         this.scene = scene
         this.grid = []
+        this.swapEffects = []
         this.candyGridOffset = new Phaser.Math.Vector2(
             (scene.scale.width -
                 GAME_CONFIG.gridWidth * GAME_CONFIG.tileWidth +
@@ -28,29 +32,117 @@ export default class CandyGrid {
     }
 
     public static create(): (Candy | undefined)[][] {
+        BoardStateMachine.getInstance().updateState(BoardState.CREATE)
+        let candies: Candy[] = []
+
         for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
             this.grid[y] = []
             for (let x = 0; x < GAME_CONFIG.gridWidth; x++) {
-                this.grid[y][x] = this.addCandy(x, y)
+                const candy = this.addCandy(x, y)
+                this.grid[y][x] = candy
+                candies.push(candy)
             }
         }
+
+        candies = Random.shuffleArray(candies)
+
+        const ROTATE_TWEEN_DUR = 1000
+        const ROTATE_TWEEN_REPEAT = 1
+        const MOVE_TWEEN_DUR = 500
+        const MOVE_TWEEN_DELAY = 500 / candies.length
+
+        this.scene.tweens.addCounter({
+            from: 260,
+            to: 40,
+            duration: ROTATE_TWEEN_DUR,
+            ease: 'Sine.easeInOut',
+            repeat: ROTATE_TWEEN_REPEAT,
+            yoyo: true,
+            onUpdate: (t) => {
+                Phaser.Actions.RotateAroundDistance(
+                    candies,
+                    { x: this.scene.scale.width / 2, y: this.scene.scale.height / 2 },
+                    0.03,
+                    t.getValue()
+                )
+            },
+            onComplete: () => {
+                candies.forEach((candy, i) => {
+                    this.scene.add.tween({
+                        targets: candy,
+                        x: candy.gridX * GAME_CONFIG.tileWidth + this.candyGridOffset.x,
+                        y: candy.gridY * GAME_CONFIG.tileHeight + this.candyGridOffset.y,
+                        duration: MOVE_TWEEN_DUR,
+                        ease: 'Quad.out',
+                        delay: i * MOVE_TWEEN_DELAY,
+                    })
+                })
+            },
+        })
+
+        const totalDelay =
+            ROTATE_TWEEN_DUR * (ROTATE_TWEEN_REPEAT + 1) * 2 +
+            candies.length * MOVE_TWEEN_DELAY +
+            MOVE_TWEEN_DUR
+
+        this.scene.time.delayedCall(totalDelay, () => {
+            this.scene.checkMatches()
+        })
+
         return this.grid
     }
 
-    private static addCandy(x: number, y: number): Candy {
-        // Get a random candy
-        const randomCandyType: CANDY_TYPE =
+    public static clear(): void {
+        for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
+            for (let x = 0; x < GAME_CONFIG.gridWidth; x++) {
+                const candy = this.grid[y][x]
+                if (candy) {
+                    candy.destroy()
+                    this.grid[y][x] = undefined
+                }
+            }
+        }
+    }
+
+    public static playIdleEffect(): void {
+        for (let i = 0; i < this.grid.length; i++) {
+            for (let j = 0; j < this.grid[i].length; j++) {
+                const candy = this.grid[i][j]
+                if (candy) {
+                    this.scene.add.tween({
+                        targets: candy,
+                        y: candy.y - 20,
+                        duration: 200,
+                        delay: (i + j) * 100,
+                        ease: 'Quad.out',
+                        yoyo: true,
+                    })
+                }
+            }
+        }
+    }
+
+    private static addCandy(
+        x: number,
+        y: number,
+        _candyType?: CANDY_TYPE,
+        _specialType?: SPECIAL_TYPE
+    ): Candy {
+        const candyType =
+            _candyType ??
             GAME_CONFIG.candyTypes[Phaser.Math.RND.between(0, GAME_CONFIG.candyTypes.length - 1)]
+
+        const specialType = _specialType ?? SPECIAL_TYPE.NONE
 
         // Return the created candy
         return new Candy({
             scene: this.scene,
-            candyType: randomCandyType,
+            candyType: candyType,
+            specialType: specialType,
             x: x * GAME_CONFIG.tileWidth + this.candyGridOffset.x,
             y: y * GAME_CONFIG.tileHeight + this.candyGridOffset.y,
             gridX: x,
             gridY: y,
-            texture: randomCandyType,
         })
     }
 
@@ -60,7 +152,7 @@ export default class CandyGrid {
             for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
                 veticalGrid[y] = []
             }
-            //Check for blank spaces in the grid and add new tiles at that position
+            //Check for blank spaces in the grid and add new candies at that position
             for (let y = 0; y < this.grid.length; y++) {
                 for (let x = 0; x < this.grid[y].length; x++) {
                     if (this.grid[y][x] === undefined) {
@@ -97,7 +189,7 @@ export default class CandyGrid {
     public static resetCandy(): void {
         // Loop through each column starting from the left
         for (let y = this.grid.length - 1; y > 0; y--) {
-            // Loop through each tile in the column from bottom to top
+            // Loop through each candy in the column from bottom to top
             for (let x = this.grid[y].length - 1; x >= 0; x--) {
                 const t = y
 
@@ -128,7 +220,7 @@ export default class CandyGrid {
 
     public static swapCandies(firstCandy: Candy | undefined, secondCandy: Candy | undefined): void {
         if (firstCandy && secondCandy) {
-            // Get the position of the two tiles
+            // Get the position of the two candies
             BoardStateMachine.getInstance().updateState(BoardState.SWAP)
 
             const firstX = firstCandy.gridX
@@ -136,16 +228,16 @@ export default class CandyGrid {
 
             const secondX = secondCandy.gridX
             const secondY = secondCandy.gridY
-            // Swap them in our grid with the tiles
+            // Swap them in our grid with the candies
             this.grid[firstY][firstX] = secondCandy
             this.grid[secondY][secondX] = firstCandy
 
             secondCandy.setGrid(firstX, firstY)
             firstCandy.setGrid(secondX, secondY)
 
+            this.swapEffects.forEach((swapEffect) => swapEffect.destroy())
             // Add particle when candies move
             const p1 = this.scene.add.particles(32, 32, 'particle-3', {
-                color: [0xfffff],
                 lifespan: 500,
                 alpha: { start: 1, end: 0, ease: 'Quad.out' },
                 scale: { start: 1, end: 0, ease: 'Quart.in' },
@@ -155,7 +247,6 @@ export default class CandyGrid {
             })
 
             const p2 = this.scene.add.particles(32, 32, 'particle-3', {
-                color: [0xfffff],
                 lifespan: 500,
                 alpha: { start: 1, end: 0, ease: 'Quad.out' },
                 scale: { start: 1, end: 0, ease: 'Quart.in' },
@@ -163,6 +254,8 @@ export default class CandyGrid {
                 blendMode: BlendModes.ADD,
                 stopAfter: 1,
             })
+
+            this.swapEffects.push(...[p1, p2])
             // Move them on the screen with tweens
             this.scene.add.tween({
                 targets: firstCandy,
@@ -194,44 +287,59 @@ export default class CandyGrid {
                     this.scene.checkMatches()
                 },
             })
-
-            // firstCandy = this.grid[firstY][firstX]
-            // secondCandy = this.grid[secondY][secondX]
         }
     }
 
-    public static removeCandyGroup(candyGroup: Candy[][]): void {
-        const flattenedGroup = candyGroup.flat()
-        // Loop through all the matches and remove the associated tiles
-        for (const candy of flattenedGroup) {
-            const candyPos = this.getTilePos(candy)
+    public static removeCandyGroup(matches: IMatch[]): void {
+        let candies: Candy[] = []
+        const specialCandies: Candy[] = []
 
-            if (candyPos.x !== -1 && candyPos.y !== -1) {
-                candy.destroy()
-                this.grid[candyPos.y][candyPos.x] = undefined
+        for (const match of matches) {
+            candies = candies.concat(match.candies)
+
+            // Match 4
+            if (match.candies.length === 4) {
+                const candy = this.addCandy(
+                    match.candies[0].gridX,
+                    match.candies[0].gridY,
+                    match.candies[0].getCandyType(),
+                    match.direction === 'horizontal'
+                        ? SPECIAL_TYPE.VERTICAL_STRIPED
+                        : SPECIAL_TYPE.HORIZONTAL_STRIPED
+                )
+                specialCandies.push(candy)
             }
         }
-    }
 
-    private static getTilePos(candy: Candy): Phaser.Math.Vector2 {
-        const pos = new Phaser.Math.Vector2(-1, -1)
+        const setGroup = new Set(candies)
 
-        //Find the position of a specific tile in the grid
-        for (let y = 0; y < this.grid.length; y++) {
-            for (let x = 0; x < this.grid[y].length; x++) {
-                //There is a match at this position so return the grid coords
-                if (candy === this.grid[y][x]) {
-                    pos.x = x
-                    pos.y = y
-                    break
+        for (const candy of setGroup) {
+            if (candy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED) {
+                for (const c of this.grid[candy.gridY]) {
+                    if (c) setGroup.add(c)
+                }
+            } else if (candy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED) {
+                for (let i = 0; i < this.grid[candy.gridY].length; i++) {
+                    const c = this.grid[i][candy.gridX]
+                    if (c) setGroup.add(c)
                 }
             }
         }
 
-        return pos
+        // Loop through all the matches and remove the associated candies
+        for (const candy of setGroup) {
+            if (this.grid[candy.gridY][candy.gridX]) {
+                candy.destroy()
+                this.grid[candy.gridY][candy.gridX] = undefined
+            }
+        }
+
+        for (const specialCandy of specialCandies) {
+            this.grid[specialCandy.gridY][specialCandy.gridX] = specialCandy
+        }
     }
 
-    public static getHints(): Candy[][] {
+    public static getHints(): IMatch[] {
         const swapCandies = (a: Phaser.Math.Vector2, b: Phaser.Math.Vector2) => {
             if (a && b) {
                 const candyA = this.grid[a.x][a.y] as Candy
@@ -284,8 +392,8 @@ export default class CandyGrid {
         return []
     }
 
-    public static getMatches(): Candy[][] {
-        const matches: Candy[][] = []
+    public static getMatches(): IMatch[] {
+        const matches: IMatch[] = []
         const visited: boolean[][] = []
 
         // Initialize visited array
@@ -302,14 +410,14 @@ export default class CandyGrid {
                 const candy = this.grid[y][x]
 
                 if (candy && !visited[y][x]) {
-                    const match: Candy[] = [candy]
+                    const match: IMatch = { candies: [candy], direction: 'horizontal' }
                     let matchLength = 1
 
                     for (let i = x + 1; i < this.grid[y].length; i++) {
                         const nextCandy = this.grid[y][i]
 
-                        if (nextCandy && nextCandy.candyType === candy.candyType) {
-                            match.push(nextCandy)
+                        if (nextCandy && nextCandy.getCandyType() === candy.getCandyType()) {
+                            match.candies.push(nextCandy)
                             matchLength++
                         } else {
                             break
@@ -318,15 +426,21 @@ export default class CandyGrid {
 
                     if (matchLength >= 3) {
                         matches.push(match)
-                        match.forEach((matchCandy) => {
-                            const candyY = matchCandy.y
-                            const tileX = matchCandy.x
-                            if (visited[candyY] && visited[candyY][tileX] === false) {
-                                visited[candyY][tileX] = true
+                        match.candies.forEach((matchCandy) => {
+                            const candyY = matchCandy.gridY
+                            const candyX = matchCandy.gridX
+                            if (visited[candyY] && visited[candyY][candyX] === false) {
+                                visited[candyY][candyX] = true
                             }
                         })
                     }
                 }
+            }
+        }
+
+        for (let y = 0; y < this.grid.length; y++) {
+            for (let x = 0; x < this.grid[y].length; x++) {
+                visited[y][x] = false
             }
         }
 
@@ -336,14 +450,14 @@ export default class CandyGrid {
                 const candy = this.grid[y][x]
 
                 if (candy && !visited[y][x]) {
-                    const match: Candy[] = [candy]
+                    const match: IMatch = { candies: [candy], direction: 'vertical' }
                     let matchLength = 1
 
                     for (let i = y + 1; i < this.grid.length; i++) {
                         const nextCandy = this.grid[i][x]
 
-                        if (nextCandy && nextCandy.candyType === candy.candyType) {
-                            match.push(nextCandy)
+                        if (nextCandy && nextCandy.getCandyType() === candy.getCandyType()) {
+                            match.candies.push(nextCandy)
                             matchLength++
                         } else {
                             break
@@ -352,11 +466,11 @@ export default class CandyGrid {
 
                     if (matchLength >= 3) {
                         matches.push(match)
-                        match.forEach((matchCandy) => {
-                            const candyY = matchCandy.y
-                            const tileX = matchCandy.x
-                            if (visited[candyY] && visited[candyY][tileX] === false) {
-                                visited[candyY][tileX] = true
+                        match.candies.forEach((matchCandy) => {
+                            const candyY = matchCandy.gridY
+                            const candyX = matchCandy.gridX
+                            if (visited[candyY] && visited[candyY][candyX] === false) {
+                                visited[candyY][candyX] = true
                             }
                         })
                     }

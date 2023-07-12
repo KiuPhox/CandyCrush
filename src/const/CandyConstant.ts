@@ -7,6 +7,14 @@ export enum CANDY_TYPE {
     YELLOW = 'yellow',
 }
 
+export enum SPECIAL_TYPE {
+    NONE = 'none',
+    VERTICAL_STRIPED = 'vertical-striped',
+    HORIZONTAL_STRIPED = 'horizontal-striped',
+    WRAPPED = 'wrapped',
+    COLOR_BOMB = 'color-bomb',
+}
+
 export const CANDY_COLORS = {
     blue: 0x068fff,
     green: 0x16ff00,
