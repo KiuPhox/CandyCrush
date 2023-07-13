@@ -10,9 +10,9 @@ export const GAME_CONFIG = {
     candyTypes: [
         CANDY_TYPE.BLUE,
         CANDY_TYPE.GREEN,
-        // CANDY_TYPE.ORANGE,
-        // CANDY_TYPE.PURPLE,
-        // CANDY_TYPE.RED,
-        // CANDY_TYPE.YELLOW,
+        CANDY_TYPE.ORANGE,
+        CANDY_TYPE.PURPLE,
+        CANDY_TYPE.RED,
+        CANDY_TYPE.YELLOW,
     ],
 }
