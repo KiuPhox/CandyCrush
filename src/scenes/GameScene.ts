@@ -31,6 +31,7 @@ export default class GameScene extends Phaser.Scene {
             .setScale(0.5)
             .setPosition(this.rectangleMask.getCenter().x, this.rectangleMask.getCenter().y)
         this.cameras.main.setBackgroundColor(0x78aade)
+        this.cameras.main.setZoom(8 / GAME_CONFIG.gridWidth)
         CandyGrid.create()
         this.tryGetHint()
         this.idleTimer = 5000

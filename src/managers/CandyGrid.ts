@@ -151,7 +151,7 @@ export default class CandyGrid {
     public static fillCandy(): Promise<void> {
         return new Promise<void>((resolve) => {
             const veticalGrid: Candy[][] = []
-            for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
+            for (let y = 0; y < GAME_CONFIG.gridWidth; y++) {
                 veticalGrid[y] = []
             }
             //Check for blank spaces in the grid and add new candies at that position
@@ -350,8 +350,6 @@ export default class CandyGrid {
                     ease: 'Quad.out',
                 })
 
-                removeDelay = Math.max(removeDelay, 100)
-
                 candiesToRemove.delete(match.candies[stripedCandyIndex])
             } else if (match.candies.length === 5) {
                 const candy: Candy = match.candies[2]
@@ -378,8 +376,6 @@ export default class CandyGrid {
                     duration: 50,
                     ease: 'Quad.out',
                 })
-
-                removeDelay = Math.max(removeDelay, 100)
             }
         }
 
@@ -458,8 +454,8 @@ export default class CandyGrid {
         for (let y = 0; y < this.grid.length; y++) {
             for (let x = 0; x < this.grid[y].length - 1; x++) {
                 // Swap candies and check for matches
-                const a = new Phaser.Math.Vector2(y, x)
-                const b = new Phaser.Math.Vector2(y, x + 1)
+                const a = new Phaser.Math.Vector2(x, y)
+                const b = new Phaser.Math.Vector2(x + 1, y)
                 CandySwapper.swapCandiesInternal(a, b)
                 const matches = CandyMatcher.getMatches()
 
@@ -478,8 +474,8 @@ export default class CandyGrid {
         for (let x = 0; x < this.grid[0].length; x++) {
             for (let y = 0; y < this.grid.length - 1; y++) {
                 // Swap candies and check for matches
-                const a = new Phaser.Math.Vector2(y, x)
-                const b = new Phaser.Math.Vector2(y + 1, x)
+                const a = new Phaser.Math.Vector2(x, y)
+                const b = new Phaser.Math.Vector2(x, y + 1)
                 CandySwapper.swapCandiesInternal(a, b)
                 const matches = CandyMatcher.getMatches()
 
