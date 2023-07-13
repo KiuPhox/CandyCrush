@@ -93,6 +93,11 @@
             },
             {
                 "type": "image",
+                "key": "color",
+                "url": "./assets/images/color.png"
+            },
+            {
+                "type": "image",
                 "key": "particle-1",
                 "url": "./assets/images/particle-1.png"
             },
@@ -105,6 +110,11 @@
                 "type": "image",
                 "key": "particle-3",
                 "url": "./assets/images/particle-3.png"
+            },
+            {
+                "type": "image",
+                "key": "particle-4",
+                "url": "./assets/images/particle-4.png"
             },
             {
                 "type": "image",
