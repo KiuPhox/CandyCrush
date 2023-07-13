@@ -35,6 +35,13 @@ export default class GameScene extends Phaser.Scene {
         CandyGrid.create()
         this.tryGetHint()
         this.idleTimer = 5000
+        this.anims.create({
+            key: 'lightning',
+            frames: this.anims.generateFrameNames('lightning', { prefix: '', start: 0, end: 60 }),
+            frameRate: 30,
+            yoyo: true,
+            repeat: -1,
+        })
     }
 
     private createRectangleMask(): void {

@@ -17,6 +17,8 @@ export default class Candy extends Phaser.GameObjects.Sprite {
 
         this.setScale(0.7).setInteractive()
         this.scene.add.existing(this)
+
+        //this.preFX?.addColorMatrix()
     }
 
     private playExplodeEffect(): void {

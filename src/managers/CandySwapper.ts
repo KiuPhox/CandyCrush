@@ -52,8 +52,8 @@ export class CandySwapper {
         const p1 = this.scene.add.particles(32, 32, 'particle-3', {
             lifespan: 500,
             alpha: { start: 1, end: 0, ease: 'Quad.out' },
-            scale: { start: 1, end: 0, ease: 'Quart.in' },
-            duration: 300,
+            scale: { start: 1, end: 0, ease: 'Quad.out' },
+            duration: 200,
             blendMode: BlendModes.ADD,
             stopAfter: 1,
         })
@@ -61,8 +61,8 @@ export class CandySwapper {
         const p2 = this.scene.add.particles(32, 32, 'particle-3', {
             lifespan: 500,
             alpha: { start: 1, end: 0, ease: 'Quad.out' },
-            scale: { start: 1, end: 0, ease: 'Quart.in' },
-            duration: 300,
+            scale: { start: 1, end: 0, ease: 'Quad.out' },
+            duration: 200,
             blendMode: BlendModes.ADD,
             stopAfter: 1,
         })

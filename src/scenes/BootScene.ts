@@ -41,6 +41,10 @@ export default class BootScene extends Phaser.Scene {
 
         // load out package
         this.load.pack('preload', './assets/pack.json', 'preload')
+        this.load.spritesheet('lightning', './assets/images/lightning-sheet.png', {
+            frameWidth: 288,
+            frameHeight: 271,
+        })
     }
 
     update(): void {

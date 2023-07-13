@@ -10,6 +10,7 @@ import { ParticleManager } from './ParticleManager'
 import { CandyMatcher } from './CandyMatcher'
 import { CandySwapper } from './CandySwapper'
 import CandySelector from './CandySelector'
+import { Lightning } from '../objects/Lightning'
 
 export default class CandyGrid {
     private static scene: GameScene
@@ -243,14 +244,37 @@ export default class CandyGrid {
                     let delay = 0
 
                     if (otherCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
+                        const middleX = Math.floor(GAME_CONFIG.gridWidth / 2)
+
                         for (let i = 0; i < this.grid.length; i++) {
-                            for (let j = 0; j < this.grid[i].length; j++) {
+                            for (let j = 0; j < middleX; j++) {
                                 const candy = this.grid[i][j]
-                                if (candy) {
-                                    matches.push({ candies: [candy], direction: 'horizontal' })
+                                if (candy && candy.getSpecialType() !== SPECIAL_TYPE.COLOR_BOMB) {
+                                    delay = Math.max(delay, (j + 1) * 100 + 500)
+                                    this.lightningCandy(bombCandy, candy, j * 100, () => {
+                                        candy.destroy()
+                                        this.grid[candy.gridY][candy.gridX] = undefined
+                                    })
+                                }
+                            }
+
+                            for (let j = this.grid[i].length - 1; j >= middleX; j--) {
+                                const candy = this.grid[i][j]
+                                if (candy && candy.getSpecialType() !== SPECIAL_TYPE.COLOR_BOMB) {
+                                    delay = Math.max(delay, (j + 1) * 100 + 500)
+                                    this.lightningCandy(
+                                        otherCandy,
+                                        candy,
+                                        (this.grid[i].length - j - 1) * 100,
+                                        () => {
+                                            candy.destroy()
+                                            this.grid[candy.gridY][candy.gridX] = undefined
+                                        }
+                                    )
                                 }
                             }
                         }
+                        matches.push({ candies: [bombCandy, otherCandy], direction: 'horizontal' })
                     } else if (
                         otherCandy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED ||
                         otherCandy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED
@@ -258,8 +282,13 @@ export default class CandyGrid {
                         for (let i = 0; i < this.grid.length; i++) {
                             for (let j = 0; j < this.grid[i].length; j++) {
                                 const candy = this.grid[i][j]
-                                if (candy && candy.getCandyType() === otherCandy.getCandyType()) {
-                                    this.scene.time.delayedCall(i * 100, () => {
+                                if (
+                                    candy &&
+                                    candy.getCandyType() === otherCandy.getCandyType() &&
+                                    candy.getSpecialType() === SPECIAL_TYPE.NONE
+                                ) {
+                                    delay = Math.max(delay, (j + 1) * 100 + 500)
+                                    this.lightningCandy(bombCandy, candy, j * 100, () => {
                                         candy.setSpecialType(
                                             Random.Percent(50)
                                                 ? SPECIAL_TYPE.VERTICAL_STRIPED
@@ -270,16 +299,20 @@ export default class CandyGrid {
                                             direction: 'horizontal',
                                         })
                                     })
-                                    delay = Math.max(delay, (i + 1) * 100)
                                 }
                             }
                         }
+                        matches.push({ candies: [bombCandy], direction: 'horizontal' })
                     } else {
                         for (let i = 0; i < this.grid.length; i++) {
                             for (let j = 0; j < this.grid[i].length; j++) {
                                 const candy = this.grid[i][j]
                                 if (candy && candy.getCandyType() === otherCandy.getCandyType()) {
-                                    matches.push({ candies: [candy], direction: 'horizontal' })
+                                    delay = Math.max(delay, (j + 1) * 100 + 500)
+                                    this.lightningCandy(bombCandy, candy, j * 100, () => {
+                                        candy.destroy()
+                                        this.grid[candy.gridY][candy.gridX] = undefined
+                                    })
                                 }
                             }
                         }
@@ -293,6 +326,34 @@ export default class CandyGrid {
                 }
             })
         }
+    }
+
+    public static lightningCandy(
+        source: Candy,
+        target: Candy,
+        delay: number,
+        onLightningTouch?: () => void
+    ) {
+        const lightning = new Lightning(this.scene).setVisible(false)
+        lightning.setLine(
+            new Phaser.Math.Vector2(source.x, source.y),
+            new Phaser.Math.Vector2(target.x, target.y)
+        )
+        this.scene.tweens.addCounter({
+            duration: delay,
+            onComplete: () => {
+                if (onLightningTouch) {
+                    onLightningTouch()
+                }
+                lightning.setVisible(true)
+                this.scene.tweens.addCounter({
+                    duration: 200,
+                    onComplete: () => {
+                        lightning.destroy()
+                    },
+                })
+            },
+        })
     }
 
     public static removeCandyGroup(matches: IMatch[]): void {
