@@ -2,8 +2,10 @@ import { BoardState } from '../const/BoardState'
 import { GAME_CONFIG } from '../const/GameConfig'
 import BoardStateMachine from '../managers/BoardStateMachine'
 import CandyGrid from '../managers/CandyGrid'
-import CandySelection from '../managers/CandySelection'
+import { CandyMatcher } from '../managers/CandyMatcher'
+import CandySelection from '../managers/CandySelector'
 import { ParticleManager } from '../managers/ParticleManager'
+import Candy from '../objects/Candy'
 import ProgressBar from './screens/ProgressBar'
 
 export default class GameScene extends Phaser.Scene {
@@ -21,6 +23,7 @@ export default class GameScene extends Phaser.Scene {
         ParticleManager.init(this)
         CandyGrid.init(this)
         CandySelection.init(this)
+        BoardStateMachine.getInstance().emitter.on('board-state-changed', this.onBoardStateChanged)
 
         this.createRectangleMask()
         this.progressBar = new ProgressBar(this)
@@ -57,7 +60,7 @@ export default class GameScene extends Phaser.Scene {
         }
         //Call the getMatches function to check for spots where there is
         //a run of three or more tiles in a row
-        const matches = CandyGrid.getMatches()
+        const matches = CandyMatcher.getMatches()
 
         //If there are matches, remove them
         if (matches.length > 0) {
@@ -65,21 +68,14 @@ export default class GameScene extends Phaser.Scene {
             BoardStateMachine.getInstance().updateState(BoardState.MATCH)
             //Remove the tiles
             CandyGrid.removeCandyGroup(matches)
-            // Move the tiles currently on the board into their new positions
-            CandyGrid.resetCandy()
-            CandyGrid.fillCandy().then(() => {
-                //Fill the board with new tiles wherever there is an empty spot
-                CandySelection.candyUp()
-                this.checkMatches()
-            })
         } else {
-            if (BoardStateMachine.getInstance().getCurrentState() === BoardState.MATCH) {
+            if (BoardStateMachine.getInstance().getCurrentState() === BoardState.FILL) {
                 this.tryGetHint()
             }
 
             // No match so just swap the tiles back to their original position and reset
 
-            CandyGrid.swapCandies(
+            CandyGrid.trySwapCandies(
                 CandySelection.firstSelectedCandy,
                 CandySelection.secondSelectedCandy
             )
@@ -96,10 +92,12 @@ export default class GameScene extends Phaser.Scene {
 
     public tryGetHint(): void {
         const hint = CandyGrid.getHints()[0]
+        const glowFXs: Phaser.FX.Glow[] = []
 
-        const defaultY: number[] = []
         if (hint) {
-            hint.candies.forEach((h) => defaultY.push(h.y))
+            hint.candies.forEach((h: Candy) => {
+                if (h.preFX) glowFXs.push(h.preFX?.addGlow())
+            })
 
             this.hintTween = this.tweens.addCounter({
                 duration: 300,
@@ -110,13 +108,14 @@ export default class GameScene extends Phaser.Scene {
                 onUpdate: (t) => {
                     hint.candies.forEach((h, i) => {
                         const bounce = Phaser.Math.Easing.Bounce.InOut(t.getValue())
-                        //const quart = Phaser.Math.Easing.Quartic.In(t.getValue())
+                        const sine = Phaser.Math.Easing.Sine.InOut(t.getValue())
                         h.setScale(0.7 + bounce * (0.7 - 0.75), 0.7 + bounce * (0.7 - 0.65))
-                        // h.y = defaultY[i] + quart * 10
+                        glowFXs[i].outerStrength = 2 + sine * 5
                     })
                 },
                 onStop: () => {
-                    hint.candies.forEach((h) => {
+                    hint.candies.forEach((h, i) => {
+                        glowFXs[i].outerStrength = 0
                         h.setScale(0.7)
                     })
                 },
@@ -126,6 +125,15 @@ export default class GameScene extends Phaser.Scene {
             CandyGrid.create()
             this.checkMatches()
             this.tryGetHint()
+        }
+    }
+
+    private onBoardStateChanged = (boardState: BoardState) => {
+        switch (boardState) {
+            case BoardState.IDLE:
+                break
+            case BoardState.FILL:
+                break
         }
     }
 

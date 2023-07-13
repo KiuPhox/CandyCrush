@@ -1,4 +1,3 @@
-import { BlendModes } from 'phaser'
 import { CANDY_TYPE, SPECIAL_TYPE } from '../const/CandyConstant'
 import { GAME_CONFIG } from '../const/GameConfig'
 import Candy from '../objects/Candy'
@@ -7,18 +6,21 @@ import { BoardState } from '../const/BoardState'
 import BoardStateMachine from './BoardStateMachine'
 import { Random } from '../utils/Random'
 import { IMatch } from '../types/match'
+import { ParticleManager } from './ParticleManager'
+import { CandyMatcher } from './CandyMatcher'
+import { CandySwapper } from './CandySwapper'
+import CandySelector from './CandySelector'
 
 export default class CandyGrid {
     private static scene: GameScene
     public static grid: (Candy | undefined)[][]
     public static candyGridOffset: Phaser.Math.Vector2
 
-    private static swapEffects: Phaser.GameObjects.Particles.ParticleEmitter[]
-
     public static init(scene: GameScene): void {
         this.scene = scene
         this.grid = []
-        this.swapEffects = []
+        CandySwapper.init(scene)
+        CandyMatcher.init(this.grid)
         this.candyGridOffset = new Phaser.Math.Vector2(
             (scene.scale.width -
                 GAME_CONFIG.gridWidth * GAME_CONFIG.tileWidth +
@@ -178,7 +180,7 @@ export default class CandyGrid {
             }
 
             this.scene.tweens.addCounter({
-                duration: 500,
+                duration: 550,
                 onComplete: () => {
                     resolve()
                 },
@@ -218,155 +220,184 @@ export default class CandyGrid {
         }
     }
 
-    public static swapCandies(firstCandy: Candy | undefined, secondCandy: Candy | undefined): void {
+    public static trySwapCandies(
+        firstCandy: Candy | undefined,
+        secondCandy: Candy | undefined
+    ): void {
         if (firstCandy && secondCandy) {
             // Get the position of the two candies
             BoardStateMachine.getInstance().updateState(BoardState.SWAP)
 
-            const firstX = firstCandy.gridX
-            const firstY = firstCandy.gridY
+            CandySwapper.swapCandies(firstCandy, secondCandy, () => {
+                if (firstCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
+                    const matches: IMatch[] = []
+                    let delay = 0
 
-            const secondX = secondCandy.gridX
-            const secondY = secondCandy.gridY
-            // Swap them in our grid with the candies
-            this.grid[firstY][firstX] = secondCandy
-            this.grid[secondY][secondX] = firstCandy
-
-            secondCandy.setGrid(firstX, firstY)
-            firstCandy.setGrid(secondX, secondY)
-
-            this.swapEffects.forEach((swapEffect) => swapEffect.destroy())
-            // Add particle when candies move
-            const p1 = this.scene.add.particles(32, 32, 'particle-3', {
-                lifespan: 500,
-                alpha: { start: 1, end: 0, ease: 'Quad.out' },
-                scale: { start: 1, end: 0, ease: 'Quart.in' },
-                duration: 300,
-                blendMode: BlendModes.ADD,
-                stopAfter: 1,
-            })
-
-            const p2 = this.scene.add.particles(32, 32, 'particle-3', {
-                lifespan: 500,
-                alpha: { start: 1, end: 0, ease: 'Quad.out' },
-                scale: { start: 1, end: 0, ease: 'Quart.in' },
-                duration: 300,
-                blendMode: BlendModes.ADD,
-                stopAfter: 1,
-            })
-
-            this.swapEffects.push(...[p1, p2])
-            // Move them on the screen with tweens
-            this.scene.add.tween({
-                targets: firstCandy,
-                x: secondCandy.x,
-                y: secondCandy.y,
-                ease: 'Quad.out',
-                duration: 200,
-                repeat: 0,
-                yoyo: false,
-                onUpdate: (tween: Phaser.Tweens.Tween, candy: Candy) => {
-                    p1.x = candy.getCenter().x ?? 0
-                    p1.y = candy.getCenter().y ?? 0
-                },
-            })
-
-            this.scene.add.tween({
-                targets: secondCandy,
-                x: firstCandy.x,
-                y: firstCandy.y,
-                ease: 'Quad.out',
-                duration: 200,
-                repeat: 0,
-                yoyo: false,
-                onUpdate: (tween: Phaser.Tweens.Tween, candy: Candy) => {
-                    p2.x = candy.getCenter().x ?? 0
-                    p2.y = candy.getCenter().y ?? 0
-                },
-                onComplete: () => {
+                    if (secondCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
+                        for (let i = 0; i < this.grid.length; i++) {
+                            for (let j = 0; j < this.grid[i].length; j++) {
+                                const candy = this.grid[i][j]
+                                if (candy) {
+                                    matches.push({ candies: [candy], direction: 'horizontal' })
+                                }
+                            }
+                        }
+                    } else if (
+                        secondCandy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED ||
+                        secondCandy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED
+                    ) {
+                        for (let i = 0; i < this.grid.length; i++) {
+                            for (let j = 0; j < this.grid[i].length; j++) {
+                                const candy = this.grid[i][j]
+                                if (candy && candy.getCandyType() === secondCandy.getCandyType()) {
+                                    this.scene.time.delayedCall(i * 100, () => {
+                                        candy.setSpecialType(
+                                            Random.Percent(50)
+                                                ? SPECIAL_TYPE.VERTICAL_STRIPED
+                                                : SPECIAL_TYPE.HORIZONTAL_STRIPED
+                                        )
+                                        matches.push({
+                                            candies: [candy],
+                                            direction: 'horizontal',
+                                        })
+                                    })
+                                    delay = Math.max(delay, (i + 1) * 100)
+                                }
+                            }
+                        }
+                    } else {
+                        for (let i = 0; i < this.grid.length; i++) {
+                            for (let j = 0; j < this.grid[i].length; j++) {
+                                const candy = this.grid[i][j]
+                                if (candy && candy.getCandyType() === secondCandy.getCandyType()) {
+                                    matches.push({ candies: [candy], direction: 'horizontal' })
+                                }
+                            }
+                        }
+                        matches.push({ candies: [firstCandy], direction: 'horizontal' })
+                    }
+                    this.scene.time.delayedCall(delay, () => {
+                        this.removeCandyGroup(matches)
+                    })
+                } else {
                     this.scene.checkMatches()
-                },
+                }
             })
         }
     }
 
     public static removeCandyGroup(matches: IMatch[]): void {
-        let candies: Candy[] = []
-        const specialCandies: Candy[] = []
+        const candiesToRemove: Set<Candy> = new Set<Candy>()
 
         for (const match of matches) {
-            candies = candies.concat(match.candies)
+            for (let i = 0; i < match.candies.length; i++) {
+                candiesToRemove.add(match.candies[i])
+            }
 
             // Match 4
             if (match.candies.length === 4) {
-                const candy = this.addCandy(
-                    match.candies[0].gridX,
-                    match.candies[0].gridY,
-                    match.candies[0].getCandyType(),
+                match.candies[0].setSpecialType(
                     match.direction === 'horizontal'
                         ? SPECIAL_TYPE.VERTICAL_STRIPED
                         : SPECIAL_TYPE.HORIZONTAL_STRIPED
                 )
-                specialCandies.push(candy)
+                candiesToRemove.delete(match.candies[0])
+            } else if (match.candies.length === 5) {
+                const candy: Candy = match.candies[0]
+                candy.setCandyType(CANDY_TYPE.COLOR)
+                candy.setSpecialType(SPECIAL_TYPE.COLOR_BOMB)
+                candiesToRemove.delete(candy)
             }
         }
 
-        const setGroup = new Set(candies)
+        let specialRemoveDelay = 0
 
-        for (const candy of setGroup) {
+        for (const candy of candiesToRemove) {
             if (candy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED) {
-                for (const c of this.grid[candy.gridY]) {
-                    if (c) setGroup.add(c)
-                }
+                this.scene.cameras.main.shake(200, 0.002)
+                this.grid[candy.gridY].forEach((c, i) => {
+                    if (
+                        c &&
+                        (c.getSpecialType() === SPECIAL_TYPE.NONE ||
+                            c.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB ||
+                            c === candy)
+                    ) {
+                        specialRemoveDelay = Math.max(specialRemoveDelay, 30 * (i + 1))
+                        this.scene.tweens.addCounter({
+                            duration: 30 * i,
+                            onComplete: () => {
+                                candiesToRemove.delete(c)
+                                c.destroy()
+                                this.grid[c.gridY][c.gridX] = undefined
+                                ParticleManager.playCandyExplodeByStriped(c.x, c.y)
+                            },
+                        })
+                    } else if (c && c !== candy) {
+                        candiesToRemove.add(c)
+                    }
+                })
             } else if (candy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED) {
+                this.scene.cameras.main.shake(200, 0.002)
                 for (let i = 0; i < this.grid[candy.gridY].length; i++) {
                     const c = this.grid[i][candy.gridX]
-                    if (c) setGroup.add(c)
+                    if (
+                        c &&
+                        (c.getSpecialType() === SPECIAL_TYPE.NONE ||
+                            c.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB ||
+                            c === candy)
+                    ) {
+                        specialRemoveDelay = Math.max(specialRemoveDelay, 30 * (i + 1))
+                        this.scene.tweens.addCounter({
+                            duration: 30 * i,
+                            onComplete: () => {
+                                candiesToRemove.delete(c)
+                                c.destroy()
+                                this.grid[c.gridY][c.gridX] = undefined
+                                ParticleManager.playCandyExplodeByStriped(c.x, c.y)
+                            },
+                        })
+                    } else if (c && c !== candy) {
+                        candiesToRemove.add(c)
+                    }
                 }
             }
         }
 
-        // Loop through all the matches and remove the associated candies
-        for (const candy of setGroup) {
-            if (this.grid[candy.gridY][candy.gridX]) {
-                candy.destroy()
-                this.grid[candy.gridY][candy.gridX] = undefined
+        this.scene.time.delayedCall(specialRemoveDelay, () => {
+            BoardStateMachine.getInstance().updateState(BoardState.FILL)
+            // Loop through all the matches and remove the associated candies
+            for (const candy of candiesToRemove) {
+                if (candy && this.grid[candy.gridY][candy.gridX]) {
+                    candy.destroy()
+                    this.grid[candy.gridY][candy.gridX] = undefined
+                }
             }
-        }
 
-        for (const specialCandy of specialCandies) {
-            this.grid[specialCandy.gridY][specialCandy.gridX] = specialCandy
-        }
+            this.resetCandy()
+            this.fillCandy().then(() => {
+                CandySelector.candyUp()
+                this.scene.checkMatches()
+            })
+        })
     }
 
     public static getHints(): IMatch[] {
-        const swapCandies = (a: Phaser.Math.Vector2, b: Phaser.Math.Vector2) => {
-            if (a && b) {
-                const candyA = this.grid[a.x][a.y] as Candy
-                const candyB = this.grid[b.x][b.y] as Candy
-
-                const temp = candyA
-                this.grid[a.x][a.y] = candyB
-                this.grid[b.x][b.y] = temp
-            }
-        }
-
         for (let y = 0; y < this.grid.length; y++) {
             for (let x = 0; x < this.grid[y].length - 1; x++) {
                 // Swap candies and check for matches
                 const a = new Phaser.Math.Vector2(y, x)
                 const b = new Phaser.Math.Vector2(y, x + 1)
-                swapCandies(a, b)
-                const matches = this.getMatches()
+                CandySwapper.swapCandiesInternal(a, b)
+                const matches = CandyMatcher.getMatches()
 
                 // If matches are found, this is a valid hint
                 if (matches.length > 0) {
-                    swapCandies(a, b) // Swap back to original positions
+                    CandySwapper.swapCandiesInternal(a, b) // Swap back to original positions
                     return matches
                 }
 
                 // Swap candies back to original positions
-                swapCandies(a, b)
+                CandySwapper.swapCandiesInternal(a, b)
             }
         }
 
@@ -376,108 +407,19 @@ export default class CandyGrid {
                 // Swap candies and check for matches
                 const a = new Phaser.Math.Vector2(y, x)
                 const b = new Phaser.Math.Vector2(y + 1, x)
-                swapCandies(a, b)
-                const matches = this.getMatches()
+                CandySwapper.swapCandiesInternal(a, b)
+                const matches = CandyMatcher.getMatches()
 
                 // If matches are found, this is a valid hint
                 if (matches.length > 0) {
-                    swapCandies(a, b) // Swap back to original positions
+                    CandySwapper.swapCandiesInternal(a, b) // Swap back to original positions
                     return matches
                 }
 
                 // Swap candies back to original positions
-                swapCandies(a, b)
+                CandySwapper.swapCandiesInternal(a, b)
             }
         }
         return []
-    }
-
-    public static getMatches(): IMatch[] {
-        const matches: IMatch[] = []
-        const visited: boolean[][] = []
-
-        // Initialize visited array
-        for (let y = 0; y < this.grid.length; y++) {
-            visited[y] = []
-            for (let x = 0; x < this.grid[y].length; x++) {
-                visited[y][x] = false
-            }
-        }
-
-        // Check for horizontal matches
-        for (let y = 0; y < this.grid.length; y++) {
-            for (let x = 0; x < this.grid[y].length - 2; x++) {
-                const candy = this.grid[y][x]
-
-                if (candy && !visited[y][x]) {
-                    const match: IMatch = { candies: [candy], direction: 'horizontal' }
-                    let matchLength = 1
-
-                    for (let i = x + 1; i < this.grid[y].length; i++) {
-                        const nextCandy = this.grid[y][i]
-
-                        if (nextCandy && nextCandy.getCandyType() === candy.getCandyType()) {
-                            match.candies.push(nextCandy)
-                            matchLength++
-                        } else {
-                            break
-                        }
-                    }
-
-                    if (matchLength >= 3) {
-                        matches.push(match)
-                        match.candies.forEach((matchCandy) => {
-                            const candyY = matchCandy.gridY
-                            const candyX = matchCandy.gridX
-                            if (visited[candyY] && visited[candyY][candyX] === false) {
-                                visited[candyY][candyX] = true
-                            }
-                        })
-                    }
-                }
-            }
-        }
-
-        for (let y = 0; y < this.grid.length; y++) {
-            for (let x = 0; x < this.grid[y].length; x++) {
-                visited[y][x] = false
-            }
-        }
-
-        // Check for vertical matches
-        for (let x = 0; x < this.grid[0].length; x++) {
-            for (let y = 0; y < this.grid.length - 2; y++) {
-                const candy = this.grid[y][x]
-
-                if (candy && !visited[y][x]) {
-                    const match: IMatch = { candies: [candy], direction: 'vertical' }
-                    let matchLength = 1
-
-                    for (let i = y + 1; i < this.grid.length; i++) {
-                        const nextCandy = this.grid[i][x]
-
-                        if (nextCandy && nextCandy.getCandyType() === candy.getCandyType()) {
-                            match.candies.push(nextCandy)
-                            matchLength++
-                        } else {
-                            break
-                        }
-                    }
-
-                    if (matchLength >= 3) {
-                        matches.push(match)
-                        match.candies.forEach((matchCandy) => {
-                            const candyY = matchCandy.gridY
-                            const candyX = matchCandy.gridX
-                            if (visited[candyY] && visited[candyY][candyX] === false) {
-                                visited[candyY][candyX] = true
-                            }
-                        })
-                    }
-                }
-            }
-        }
-
-        return matches
     }
 }

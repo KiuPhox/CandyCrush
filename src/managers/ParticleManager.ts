@@ -36,4 +36,13 @@ export class ParticleManager {
             particle3Emitter.emitParticleAt(x, y)
         }
     }
+
+    public static playCandyExplodeByStriped(x: number, y: number): void {
+        const particle4Emitter = this.particleEmitters.get('particle-4')
+
+        if (particle4Emitter) {
+            particle4Emitter.setDepth(3)
+            particle4Emitter.emitParticleAt(x, y)
+        }
+    }
 }

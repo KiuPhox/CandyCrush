@@ -7,6 +7,6 @@ export default class BoardStateMachine extends StateMachine<BoardState> {
     }
 
     protected handleStateChange(): void {
-        //console.log(this.currentState)
+        //
     }
 }

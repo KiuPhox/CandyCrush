@@ -5,6 +5,7 @@ export enum CANDY_TYPE {
     PURPLE = 'purple',
     RED = 'red',
     YELLOW = 'yellow',
+    COLOR = 'color',
 }
 
 export enum SPECIAL_TYPE {
@@ -22,4 +23,5 @@ export const CANDY_COLORS = {
     purple: 0xdd58d6,
     red: 0xfe0000,
     yellow: 0xffff00,
+    color: 0xffffff,
 }

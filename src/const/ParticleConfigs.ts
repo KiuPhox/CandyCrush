@@ -57,4 +57,14 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
             stopAfter: 1,
         },
     },
+    {
+        texture: 'particle-4',
+        config: {
+            lifespan: 500,
+            duration: 300,
+            alpha: { start: 0, end: 1, ease: 'Quad.out' },
+            blendMode: BlendModes.ADD,
+            stopAfter: 1,
+        },
+    },
 ]

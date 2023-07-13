@@ -3,5 +3,6 @@ export enum BoardState {
     IDLE = 'idle',
     SWAP = 'swap',
     MATCH = 'match',
+    FILL = 'fill',
     NO_MOVE = 'no-move',
 }

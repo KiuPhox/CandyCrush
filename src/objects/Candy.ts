@@ -2,7 +2,7 @@ import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../const/CandyConstant'
 import { ICandy } from '../types/tile'
 import { ParticleManager } from '../managers/ParticleManager'
 
-export default class Candy extends Phaser.GameObjects.Image {
+export default class Candy extends Phaser.GameObjects.Sprite {
     private candyType: CANDY_TYPE
     private specialType: SPECIAL_TYPE
     public gridX: number
@@ -49,7 +49,7 @@ export default class Candy extends Phaser.GameObjects.Image {
                 this.setTexture(`${this.candyType}-${this.specialType}`)
                 break
             case SPECIAL_TYPE.COLOR_BOMB:
-                this.setTexture('')
+                this.setTexture('color')
                 break
         }
     }

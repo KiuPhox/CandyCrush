@@ -3,7 +3,7 @@ export abstract class StateMachine<T> {
     protected currentState: T
     protected previousState: T
 
-    protected emitter: Phaser.Events.EventEmitter
+    public emitter: Phaser.Events.EventEmitter
     protected name: string
 
     constructor(name: string, initialState: T) {
@@ -27,7 +27,7 @@ export abstract class StateMachine<T> {
         this.currentState = newState
 
         this.handleStateChange()
-        this.emitter.emit(this.name + 'state-changed', this.currentState, this.previousState)
+        this.emitter.emit(this.name + '-state-changed', this.currentState, this.previousState)
     }
 
     protected abstract handleStateChange(): void
