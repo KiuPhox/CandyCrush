@@ -3,6 +3,7 @@ import { GAME_CONFIG } from '../const/GameConfig'
 import BoardStateMachine from '../managers/BoardStateMachine'
 import CandyGrid from '../managers/candy-grid/CandyGrid'
 import CandyMatcher from '../managers/candy-grid/CandyMatcher'
+import CandyRemover from '../managers/candy-grid/CandyRemover'
 import CandySelector from '../managers/candy-grid/CandySelector'
 import ParticleManager from '../managers/ParticleManager'
 import ScoreManager from '../managers/ScoreManager'
@@ -11,8 +12,6 @@ import ProgressBar from './screens/ProgressBar'
 
 export default class GameScene extends Phaser.Scene {
     private hintTween: Phaser.Tweens.Tween
-    private rectangleMask: Phaser.GameObjects.Rectangle
-
     private idleTimer: number
 
     constructor() {
@@ -27,7 +26,6 @@ export default class GameScene extends Phaser.Scene {
         BoardStateMachine.getInstance().emitter.on('board-state-changed', this.onBoardStateChanged)
         ScoreManager.emitter.on('score-reached-max', this.onScoreReachedMax)
 
-        this.createRectangleMask()
         this.createProgressBar()
 
         this.cameras.main.setBackgroundColor(0x78aade)
@@ -44,26 +42,13 @@ export default class GameScene extends Phaser.Scene {
         })
     }
 
-    private createRectangleMask(): void {
-        this.rectangleMask = this.add
-            .rectangle(
-                0,
-                0,
-                this.scale.width,
-                CandyGrid.candyGridOffset.y - GAME_CONFIG.tileWidth / 2,
-                0x78aade
-            )
-            .setOrigin(0)
-            .setDepth(1)
-    }
-
     private createProgressBar(): void {
         new ProgressBar(this)
             .setDepth(2)
             .setScale(0.5)
             .setPosition(
-                this.rectangleMask.getCenter().x,
-                (this.rectangleMask.getBottomCenter().y ?? 0) - 50
+                this.scale.width / 2,
+                CandyGrid.candyGridOffset.y - GAME_CONFIG.tileWidth / 2 - 50
             )
     }
 
@@ -84,7 +69,7 @@ export default class GameScene extends Phaser.Scene {
         if (matches.length > 0) {
             BoardStateMachine.getInstance().updateState(BoardState.MATCH)
             //Remove the tiles
-            CandyGrid.removeCandyGroup(matches)
+            CandyRemover.removeCandyGroup(matches)
         } else {
             if (BoardStateMachine.getInstance().getCurrentState() === BoardState.FILL) {
                 this.tryGetHint()
