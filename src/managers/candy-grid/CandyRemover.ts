@@ -32,7 +32,7 @@ export class CandyRemover {
         }
     }
 
-    public static removeAllCandyByColorBomb(
+    public static removeColorCandyByColorBomb(
         bombCandy: Candy,
         candyType: CANDY_TYPE,
         delay: number
@@ -46,6 +46,7 @@ export class CandyRemover {
                         this.removeCandy(candy)
                     })
                 }
+                ScoreManager.addScore(1)
             }
         }
         return delay
@@ -160,7 +161,7 @@ export class CandyRemover {
                     },
                 })
             } else if (removedCandy && removedCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
-                removeDelay = this.removeAllCandyByColorBomb(
+                removeDelay = this.removeColorCandyByColorBomb(
                     removedCandy,
                     stripedCandy.getCandyType(),
                     removeDelay

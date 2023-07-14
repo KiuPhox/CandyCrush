@@ -49,23 +49,33 @@ class CandySwapper {
         this.swapEffects.forEach((swapEffect) => swapEffect.destroy())
         // Add particle when candies move
 
-        const p1 = this.scene.add.particles(32, 32, 'particle-3', {
-            lifespan: 500,
-            alpha: { start: 1, end: 0, ease: 'Quad.out' },
-            scale: { start: 1, end: 0, ease: 'Quad.out' },
-            duration: 200,
-            blendMode: BlendModes.ADD,
-            stopAfter: 1,
-        })
+        const p1 = this.scene.add.particles(
+            firstCandy.getCenter().x ?? 0,
+            firstCandy.getCenter().y ?? 0,
+            'particle-3',
+            {
+                lifespan: 500,
+                alpha: { start: 1, end: 0, ease: 'Quad.out' },
+                scale: { start: 1, end: 0, ease: 'Quad.out' },
+                duration: 200,
+                blendMode: BlendModes.ADD,
+                stopAfter: 1,
+            }
+        )
 
-        const p2 = this.scene.add.particles(32, 32, 'particle-3', {
-            lifespan: 500,
-            alpha: { start: 1, end: 0, ease: 'Quad.out' },
-            scale: { start: 1, end: 0, ease: 'Quad.out' },
-            duration: 200,
-            blendMode: BlendModes.ADD,
-            stopAfter: 1,
-        })
+        const p2 = this.scene.add.particles(
+            secondCandy.getCenter().x ?? 0,
+            secondCandy.getCenter().y ?? 0,
+            'particle-3',
+            {
+                lifespan: 500,
+                alpha: { start: 1, end: 0, ease: 'Quad.out' },
+                scale: { start: 1, end: 0, ease: 'Quad.out' },
+                duration: 200,
+                blendMode: BlendModes.ADD,
+                stopAfter: 1,
+            }
+        )
 
         this.swapEffects.push(...[p1, p2])
         // Move them on the screen with tweens

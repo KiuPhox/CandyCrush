@@ -10,6 +10,12 @@ class ScoreManager {
         this.emitter = new Phaser.Events.EventEmitter()
     }
 
+    public static reset(newLevel: number): void {
+        this.maxScore = 100 * newLevel
+        this.currentScore = 0
+        this.emitter.emit('score-updated', this.currentScore, this.maxScore)
+    }
+
     public static addScore(score: number): void {
         this.currentScore += score
         this.emitter.emit('score-updated', this.currentScore, this.maxScore)

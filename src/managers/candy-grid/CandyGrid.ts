@@ -14,6 +14,7 @@ import CandyRemover from './CandyRemover'
 export class CandyGrid {
     private static scene: GameScene
     private static candyLayer: Phaser.GameObjects.Layer
+    private static candyMask: Phaser.Display.Masks.GeometryMask
 
     public static grid: (Candy | undefined)[][]
     public static candyGridOffset: Phaser.Math.Vector2
@@ -51,14 +52,14 @@ export class CandyGrid {
             GAME_CONFIG.gridHeight * GAME_CONFIG.tileHeight
         )
 
-        const mask = graphics.createGeometryMask()
+        this.candyMask = graphics.createGeometryMask()
 
-        candyLayer.setMask(mask)
+        candyLayer.setMask(this.candyMask)
 
         return candyLayer
     }
 
-    public static create(): (Candy | undefined)[][] {
+    public static create(level: number): (Candy | undefined)[][] {
         BoardStateMachine.getInstance().updateState(BoardState.CREATE)
         let candies: Candy[] = []
 
@@ -74,12 +75,14 @@ export class CandyGrid {
         candies = Random.shuffleArray(candies)
 
         const ROTATE_TWEEN_DUR = 1000
-        const ROTATE_TWEEN_REPEAT = 1
+        const ROTATE_TWEEN_REPEAT = 0
         const MOVE_TWEEN_DUR = 500
         const MOVE_TWEEN_DELAY = 500 / candies.length
 
+        this.candyLayer.clearMask()
+
         this.scene.tweens.addCounter({
-            from: 260,
+            from: 250,
             to: 40,
             duration: ROTATE_TWEEN_DUR,
             ease: 'Sine.easeInOut',
@@ -113,6 +116,7 @@ export class CandyGrid {
             MOVE_TWEEN_DUR
 
         this.scene.time.delayedCall(totalDelay, () => {
+            this.candyLayer.setMask(this.candyMask)
             this.scene.checkMatches()
         })
 
@@ -331,7 +335,7 @@ export class CandyGrid {
                         }
                         matches.push({ candies: [bombCandy], direction: 'horizontal' })
                     } else {
-                        delay = CandyRemover.removeAllCandyByColorBomb(
+                        delay = CandyRemover.removeColorCandyByColorBomb(
                             bombCandy,
                             otherCandy.getCandyType(),
                             delay

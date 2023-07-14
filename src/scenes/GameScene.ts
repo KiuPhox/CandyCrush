@@ -13,6 +13,8 @@ import ProgressBar from './screens/ProgressBar'
 export default class GameScene extends Phaser.Scene {
     private hintTween: Phaser.Tweens.Tween
     private idleTimer: number
+    private levelClear: boolean
+    private currentLevel: number
 
     constructor() {
         super('GameScene')
@@ -29,10 +31,12 @@ export default class GameScene extends Phaser.Scene {
         this.createProgressBar()
 
         this.cameras.main.setBackgroundColor(0x78aade)
-        this.cameras.main.setZoom(11 / GAME_CONFIG.gridWidth)
-        CandyGrid.create()
+        //this.cameras.main.setZoom(11 / GAME_CONFIG.gridWidth)
+        CandyGrid.create(0)
         this.tryGetHint()
         this.idleTimer = 5000
+        this.levelClear = false
+        this.currentLevel = 1
         this.anims.create({
             key: 'lightning',
             frames: this.anims.generateFrameNames('lightning', { prefix: '', start: 0, end: 60 }),
@@ -70,6 +74,13 @@ export default class GameScene extends Phaser.Scene {
             BoardStateMachine.getInstance().updateState(BoardState.MATCH)
             //Remove the tiles
             CandyRemover.removeCandyGroup(matches)
+        } else if (this.levelClear) {
+            this.currentLevel++
+            this.levelClear = false
+            ScoreManager.reset(this.currentLevel)
+            CandyGrid.clear()
+            CandyGrid.create(0)
+            this.tryGetHint()
         } else {
             if (BoardStateMachine.getInstance().getCurrentState() === BoardState.FILL) {
                 this.tryGetHint()
@@ -124,8 +135,7 @@ export default class GameScene extends Phaser.Scene {
             })
         } else {
             CandyGrid.clear()
-            CandyGrid.create()
-            this.checkMatches()
+            CandyGrid.create(0)
             this.tryGetHint()
         }
     }
@@ -140,7 +150,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     private onScoreReachedMax = (currentScore: number, maxScore: number) => {
-        //
+        this.levelClear = true
     }
 
     update(time: number, delta: number): void {

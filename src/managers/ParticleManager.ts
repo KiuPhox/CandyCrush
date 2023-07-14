@@ -14,12 +14,9 @@ class ParticleManager {
         PARTICLE_CONFIGS.forEach((particleConfig) => {
             this.particleEmitters.set(
                 particleConfig.key,
-                this.scene.add.particles(
-                    undefined,
-                    undefined,
-                    particleConfig.texture,
-                    particleConfig.config
-                )
+                this.scene.add
+                    .particles(undefined, undefined, particleConfig.texture, particleConfig.config)
+                    .stop()
             )
         })
     }
