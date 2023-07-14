@@ -118,7 +118,7 @@ export default class GameScene extends Phaser.Scene {
                 onStop: () => {
                     hint.candies.forEach((h, i) => {
                         glowFXs[i].outerStrength = 0
-                        h.setScale(0.3)
+                        h.setScale(0.35)
                     })
                 },
             })
