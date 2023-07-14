@@ -4,7 +4,7 @@ import GameScene from '../../scenes/GameScene'
 import BoardStateMachine from '../BoardStateMachine'
 import CandyGrid from './CandyGrid'
 
-export class CandySelector {
+class CandySelector {
     private static scene: GameScene
 
     public static firstSelectedCandy: Candy | undefined

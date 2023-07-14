@@ -101,8 +101,7 @@ export class CandyGrid {
             for (let x = 0; x < GAME_CONFIG.gridWidth; x++) {
                 const candy = this.grid[y][x]
                 if (candy) {
-                    candy.destroy()
-                    this.grid[y][x] = undefined
+                    this.removeCandy(candy)
                 }
             }
         }
@@ -148,6 +147,20 @@ export class CandyGrid {
             gridX: x,
             gridY: y,
         })
+    }
+
+    private static removeCandy(candy: Candy, delay?: number): void {
+        this.grid[candy.gridY][candy.gridX] = undefined
+        if (!delay) {
+            candy.destroy()
+        } else {
+            this.scene.tweens.addCounter({
+                duration: delay,
+                onComplete: () => {
+                    candy.destroy()
+                },
+            })
+        }
     }
 
     public static fillCandy(): Promise<void> {
@@ -253,8 +266,7 @@ export class CandyGrid {
                                 if (candy && candy.getSpecialType() !== SPECIAL_TYPE.COLOR_BOMB) {
                                     delay = Math.max(delay, (j + 1) * 100 + 200)
                                     this.lightningCandy(bombCandy, candy, j * 100, () => {
-                                        candy.destroy()
-                                        this.grid[candy.gridY][candy.gridX] = undefined
+                                        this.removeCandy(candy)
                                         ScoreManager.addScore(1)
                                     })
                                 }
@@ -269,8 +281,7 @@ export class CandyGrid {
                                         candy,
                                         (this.grid[i].length - j - 1) * 100,
                                         () => {
-                                            candy.destroy()
-                                            this.grid[candy.gridY][candy.gridX] = undefined
+                                            this.removeCandy(candy)
                                             ScoreManager.addScore(1)
                                         }
                                     )
@@ -307,18 +318,11 @@ export class CandyGrid {
                         }
                         matches.push({ candies: [bombCandy], direction: 'horizontal' })
                     } else {
-                        for (let i = 0; i < this.grid.length; i++) {
-                            for (let j = 0; j < this.grid[i].length; j++) {
-                                const candy = this.grid[i][j]
-                                if (candy && candy.getCandyType() === otherCandy.getCandyType()) {
-                                    delay = Math.max(delay, (j + 1) * 100 + 200)
-                                    this.lightningCandy(bombCandy, candy, j * 100, () => {
-                                        candy.destroy()
-                                        this.grid[candy.gridY][candy.gridX] = undefined
-                                    })
-                                }
-                            }
-                        }
+                        delay = this.removeAllCandyByColorBomb(
+                            bombCandy,
+                            otherCandy.getCandyType(),
+                            delay
+                        )
                         matches.push({ candies: [bombCandy], direction: 'horizontal' })
                     }
                     this.scene.time.delayedCall(delay, () => {
@@ -357,6 +361,25 @@ export class CandyGrid {
                 })
             },
         })
+    }
+
+    public static removeAllCandyByColorBomb(
+        bombCandy: Candy,
+        candyType: CANDY_TYPE,
+        delay: number
+    ): number {
+        for (let i = 0; i < this.grid.length; i++) {
+            for (let j = 0; j < this.grid[i].length; j++) {
+                const candy = this.grid[i][j]
+                if (candy && candy.getCandyType() === candyType) {
+                    delay = Math.max(delay, (j + 1) * 100 + 200)
+                    this.lightningCandy(bombCandy, candy, j * 100, () => {
+                        this.removeCandy(candy)
+                    })
+                }
+            }
+        }
+        return delay
     }
 
     public static removeCandyGroup(matches: IMatch[]): void {
@@ -451,7 +474,6 @@ export class CandyGrid {
             if (
                 removedCandy &&
                 (removedCandy.getSpecialType() === SPECIAL_TYPE.NONE ||
-                    removedCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB ||
                     removedCandy === stripedCandy)
             ) {
                 removeDelay = Math.max(removeDelay, delay)
@@ -459,8 +481,7 @@ export class CandyGrid {
                     duration: delay,
                     onComplete: () => {
                         candiesToRemove.delete(removedCandy)
-                        removedCandy.destroy()
-                        this.grid[removedCandy.gridY][removedCandy.gridX] = undefined
+                        this.removeCandy(removedCandy)
                         ParticleManager.playCandyExplodeByStriped(
                             removedCandy.x,
                             removedCandy.y,
@@ -469,6 +490,14 @@ export class CandyGrid {
                         )
                     },
                 })
+            } else if (removedCandy && removedCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
+                removeDelay = this.removeAllCandyByColorBomb(
+                    removedCandy,
+                    stripedCandy.getCandyType(),
+                    removeDelay
+                )
+                candiesToRemove.delete(removedCandy)
+                this.removeCandy(removedCandy, removeDelay)
             } else if (removedCandy && removedCandy !== stripedCandy) {
                 candiesToRemove.add(removedCandy)
             }
@@ -509,8 +538,7 @@ export class CandyGrid {
             // Loop through all the matches and remove the associated candies
             for (const candy of candiesToRemove) {
                 if (candy && this.grid[candy.gridY][candy.gridX]) {
-                    candy.destroy()
-                    this.grid[candy.gridY][candy.gridX] = undefined
+                    this.removeCandy(candy)
                 }
             }
 
