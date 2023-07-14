@@ -1,11 +1,11 @@
 import { BlendModes } from 'phaser'
-import { BoardState } from '../const/BoardState'
-import Candy from '../objects/Candy'
-import GameScene from '../scenes/GameScene'
-import BoardStateMachine from './BoardStateMachine'
 import CandyGrid from './CandyGrid'
+import { BoardState } from '../../const/BoardState'
+import Candy from '../../objects/Candy'
+import GameScene from '../../scenes/GameScene'
+import BoardStateMachine from '../BoardStateMachine'
 
-export class CandySwapper {
+class CandySwapper {
     private static scene: GameScene
     private static swapEffects: Phaser.GameObjects.Particles.ParticleEmitter[]
 
@@ -102,3 +102,5 @@ export class CandySwapper {
         })
     }
 }
+
+export default CandySwapper

@@ -1,7 +1,7 @@
-import Candy from '../objects/Candy'
-import { IMatch } from '../types/match'
+import Candy from '../../objects/Candy'
+import { IMatch } from '../../types/match'
 
-export class CandyMatcher {
+class CandyMatcher {
     private static visited: boolean[][]
     private static matches: IMatch[]
     private static grid: (Candy | undefined)[][]
@@ -100,3 +100,5 @@ export class CandyMatcher {
         }
     }
 }
+
+export default CandyMatcher

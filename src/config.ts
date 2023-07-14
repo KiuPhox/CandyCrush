@@ -6,11 +6,11 @@ export const GameConfig: Phaser.Types.Core.GameConfig = {
     url: 'https://github.com/digitsensitive/phaser3-typescript',
     version: '2.0',
     scale: {
-        width: 520,
+        width: 720,
         height:
             window.innerHeight > window.innerWidth
-                ? (520 * window.innerHeight) / window.innerWidth
-                : 700,
+                ? (720 * window.innerHeight) / window.innerWidth
+                : 1080,
         parent: 'phaser-game',
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,

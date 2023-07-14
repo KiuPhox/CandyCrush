@@ -3,7 +3,7 @@ import { CANDY_TYPE } from './CandyConstant'
 export const GAME_CONFIG = {
     score: 0,
     highscore: 0,
-    gridWidth: 10,
+    gridWidth: 8,
     gridHeight: 8,
     tileWidth: 64,
     tileHeight: 64,

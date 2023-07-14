@@ -4,6 +4,7 @@ import { Random } from '../utils/Random'
 
 export const PARTICLE_CONFIGS: IParticleConfig[] = [
     {
+        key: 'broken-particle',
         texture: 'particle-1',
         config: {
             lifespan: 500,
@@ -24,6 +25,7 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
         },
     },
     {
+        key: 'twinkle',
         texture: 'particle-2',
         config: {
             lifespan: 500,
@@ -47,6 +49,7 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
         },
     },
     {
+        key: 'ring-impact',
         texture: 'particle-3',
         config: {
             lifespan: 500,
@@ -58,11 +61,13 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
         },
     },
     {
-        texture: 'particle-4',
+        key: 'striped-line',
+        texture: 'striped-line',
         config: {
             lifespan: 500,
             duration: 300,
             alpha: { start: 0, end: 1, ease: 'Quad.out' },
+            scale: 2,
             blendMode: BlendModes.ADD,
             stopAfter: 1,
         },

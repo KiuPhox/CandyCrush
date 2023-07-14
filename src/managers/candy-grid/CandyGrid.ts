@@ -1,18 +1,19 @@
-import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../const/CandyConstant'
-import { GAME_CONFIG } from '../const/GameConfig'
-import Candy from '../objects/Candy'
-import GameScene from '../scenes/GameScene'
-import { BoardState } from '../const/BoardState'
-import BoardStateMachine from './BoardStateMachine'
-import { Random } from '../utils/Random'
-import { IMatch } from '../types/match'
-import { ParticleManager } from './ParticleManager'
-import { CandyMatcher } from './CandyMatcher'
-import { CandySwapper } from './CandySwapper'
+import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../../const/CandyConstant'
+import { GAME_CONFIG } from '../../const/GameConfig'
+import Candy from '../../objects/Candy'
+import GameScene from '../../scenes/GameScene'
+import { BoardState } from '../../const/BoardState'
+import BoardStateMachine from '../BoardStateMachine'
+import { Random } from '../../utils/Random'
+import { IMatch } from '../../types/match'
+import ParticleManager from '../ParticleManager'
 import CandySelector from './CandySelector'
-import { Lightning } from '../objects/Lightning'
+import { Lightning } from '../../objects/Lightning'
+import CandyMatcher from './CandyMatcher'
+import CandySwapper from './CandySwapper'
+import ScoreManager from '../ScoreManager'
 
-export default class CandyGrid {
+export class CandyGrid {
     private static scene: GameScene
     public static grid: (Candy | undefined)[][]
     public static candyGridOffset: Phaser.Math.Vector2
@@ -250,10 +251,11 @@ export default class CandyGrid {
                             for (let j = 0; j < middleX; j++) {
                                 const candy = this.grid[i][j]
                                 if (candy && candy.getSpecialType() !== SPECIAL_TYPE.COLOR_BOMB) {
-                                    delay = Math.max(delay, (j + 1) * 100 + 500)
+                                    delay = Math.max(delay, (j + 1) * 100 + 200)
                                     this.lightningCandy(bombCandy, candy, j * 100, () => {
                                         candy.destroy()
                                         this.grid[candy.gridY][candy.gridX] = undefined
+                                        ScoreManager.addScore(1)
                                     })
                                 }
                             }
@@ -261,7 +263,7 @@ export default class CandyGrid {
                             for (let j = this.grid[i].length - 1; j >= middleX; j--) {
                                 const candy = this.grid[i][j]
                                 if (candy && candy.getSpecialType() !== SPECIAL_TYPE.COLOR_BOMB) {
-                                    delay = Math.max(delay, (j + 1) * 100 + 500)
+                                    delay = Math.max(delay, (j + 1) * 100 + 200)
                                     this.lightningCandy(
                                         otherCandy,
                                         candy,
@@ -269,6 +271,7 @@ export default class CandyGrid {
                                         () => {
                                             candy.destroy()
                                             this.grid[candy.gridY][candy.gridX] = undefined
+                                            ScoreManager.addScore(1)
                                         }
                                     )
                                 }
@@ -287,7 +290,7 @@ export default class CandyGrid {
                                     candy.getCandyType() === otherCandy.getCandyType() &&
                                     candy.getSpecialType() === SPECIAL_TYPE.NONE
                                 ) {
-                                    delay = Math.max(delay, (j + 1) * 100 + 500)
+                                    delay = Math.max(delay, (j + 1) * 100 + 200)
                                     this.lightningCandy(bombCandy, candy, j * 100, () => {
                                         candy.setSpecialType(
                                             Random.Percent(50)
@@ -308,7 +311,7 @@ export default class CandyGrid {
                             for (let j = 0; j < this.grid[i].length; j++) {
                                 const candy = this.grid[i][j]
                                 if (candy && candy.getCandyType() === otherCandy.getCandyType()) {
-                                    delay = Math.max(delay, (j + 1) * 100 + 500)
+                                    delay = Math.max(delay, (j + 1) * 100 + 200)
                                     this.lightningCandy(bombCandy, candy, j * 100, () => {
                                         candy.destroy()
                                         this.grid[candy.gridY][candy.gridX] = undefined
@@ -440,8 +443,8 @@ export default class CandyGrid {
             }
         }
 
-        const tryRemoveCandyDelay = (
-            check: Candy,
+        const removeCandyByStriped = (
+            stripedCandy: Candy,
             removedCandy: Candy | undefined,
             delay: number
         ) => {
@@ -449,7 +452,7 @@ export default class CandyGrid {
                 removedCandy &&
                 (removedCandy.getSpecialType() === SPECIAL_TYPE.NONE ||
                     removedCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB ||
-                    removedCandy === check)
+                    removedCandy === stripedCandy)
             ) {
                 removeDelay = Math.max(removeDelay, delay)
                 this.scene.tweens.addCounter({
@@ -458,10 +461,15 @@ export default class CandyGrid {
                         candiesToRemove.delete(removedCandy)
                         removedCandy.destroy()
                         this.grid[removedCandy.gridY][removedCandy.gridX] = undefined
-                        ParticleManager.playCandyExplodeByStriped(removedCandy.x, removedCandy.y)
+                        ParticleManager.playCandyExplodeByStriped(
+                            removedCandy.x,
+                            removedCandy.y,
+                            stripedCandy.getSpecialType(),
+                            CANDY_COLORS[stripedCandy.getCandyType()]
+                        )
                     },
                 })
-            } else if (removedCandy && removedCandy !== check) {
+            } else if (removedCandy && removedCandy !== stripedCandy) {
                 candiesToRemove.add(removedCandy)
             }
         }
@@ -472,29 +480,32 @@ export default class CandyGrid {
 
                 for (let i = candy.gridX; i >= 0; i--) {
                     const c = this.grid[candy.gridY][i]
-                    tryRemoveCandyDelay(candy, c, 30 * (candy.gridX - i + 1))
+                    removeCandyByStriped(candy, c, 30 * (candy.gridX - i + 1))
                 }
                 for (let i = candy.gridX + 1; i < this.grid[candy.gridY].length; i++) {
                     const c = this.grid[candy.gridY][i]
-                    tryRemoveCandyDelay(candy, c, 30 * (i + 1 - candy.gridX))
+                    removeCandyByStriped(candy, c, 30 * (i + 1 - candy.gridX))
                 }
+                ScoreManager.addScore(8)
             } else if (candy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED) {
                 this.scene.cameras.main.shake(200, 0.002)
 
                 for (let i = candy.gridY; i >= 0; i--) {
                     const c = this.grid[i][candy.gridX]
-                    tryRemoveCandyDelay(candy, c, 30 * (candy.gridY - i + 1))
+                    removeCandyByStriped(candy, c, 30 * (candy.gridY - i + 1))
                 }
 
                 for (let i = candy.gridY + 1; i < this.grid.length; i++) {
                     const c = this.grid[i][candy.gridX]
-                    tryRemoveCandyDelay(candy, c, 30 * (i + 1 - candy.gridY))
+                    removeCandyByStriped(candy, c, 30 * (i + 1 - candy.gridY))
                 }
+                ScoreManager.addScore(8)
             }
         }
 
         this.scene.time.delayedCall(removeDelay + 50, () => {
             BoardStateMachine.getInstance().updateState(BoardState.FILL)
+            ScoreManager.addScore(candiesToRemove.size)
             // Loop through all the matches and remove the associated candies
             for (const candy of candiesToRemove) {
                 if (candy && this.grid[candy.gridY][candy.gridX]) {
@@ -553,3 +564,5 @@ export default class CandyGrid {
         return []
     }
 }
+
+export default CandyGrid

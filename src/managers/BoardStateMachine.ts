@@ -1,7 +1,7 @@
 import { BoardState } from '../const/BoardState'
-import { StateMachine } from '../utils/StateMachine'
+import StateMachine from '../utils/StateMachine'
 
-export default class BoardStateMachine extends StateMachine<BoardState> {
+export class BoardStateMachine extends StateMachine<BoardState> {
     constructor() {
         super('board', BoardState.IDLE)
     }
@@ -10,3 +10,5 @@ export default class BoardStateMachine extends StateMachine<BoardState> {
         //
     }
 }
+
+export default BoardStateMachine

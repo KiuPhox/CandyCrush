@@ -1,16 +1,16 @@
 import { BoardState } from '../const/BoardState'
 import { GAME_CONFIG } from '../const/GameConfig'
 import BoardStateMachine from '../managers/BoardStateMachine'
-import CandyGrid from '../managers/CandyGrid'
-import { CandyMatcher } from '../managers/CandyMatcher'
-import CandySelection from '../managers/CandySelector'
-import { ParticleManager } from '../managers/ParticleManager'
+import CandyGrid from '../managers/candy-grid/CandyGrid'
+import CandyMatcher from '../managers/candy-grid/CandyMatcher'
+import CandySelector from '../managers/candy-grid/CandySelector'
+import ParticleManager from '../managers/ParticleManager'
+import ScoreManager from '../managers/ScoreManager'
 import Candy from '../objects/Candy'
 import ProgressBar from './screens/ProgressBar'
 
 export default class GameScene extends Phaser.Scene {
     private hintTween: Phaser.Tweens.Tween
-    private progressBar: ProgressBar
     private rectangleMask: Phaser.GameObjects.Rectangle
 
     private idleTimer: number
@@ -22,16 +22,16 @@ export default class GameScene extends Phaser.Scene {
     init(): void {
         ParticleManager.init(this)
         CandyGrid.init(this)
-        CandySelection.init(this)
+        CandySelector.init(this)
+        ScoreManager.init()
         BoardStateMachine.getInstance().emitter.on('board-state-changed', this.onBoardStateChanged)
+        ScoreManager.emitter.on('score-reached-max', this.onScoreReachedMax)
 
         this.createRectangleMask()
-        this.progressBar = new ProgressBar(this)
-            .setDepth(2)
-            .setScale(0.5)
-            .setPosition(this.rectangleMask.getCenter().x, this.rectangleMask.getCenter().y)
+        this.createProgressBar()
+
         this.cameras.main.setBackgroundColor(0x78aade)
-        this.cameras.main.setZoom(8 / GAME_CONFIG.gridWidth)
+        this.cameras.main.setZoom(11 / GAME_CONFIG.gridWidth)
         CandyGrid.create()
         this.tryGetHint()
         this.idleTimer = 5000
@@ -57,6 +57,16 @@ export default class GameScene extends Phaser.Scene {
             .setDepth(1)
     }
 
+    private createProgressBar(): void {
+        new ProgressBar(this)
+            .setDepth(2)
+            .setScale(0.5)
+            .setPosition(
+                this.rectangleMask.getCenter().x,
+                (this.rectangleMask.getBottomCenter().y ?? 0) - 50
+            )
+    }
+
     public checkMatches(): void {
         if (
             this.hintTween &&
@@ -72,7 +82,6 @@ export default class GameScene extends Phaser.Scene {
 
         //If there are matches, remove them
         if (matches.length > 0) {
-            this.progressBar.updateProgress(this.progressBar.getProgress() + 1)
             BoardStateMachine.getInstance().updateState(BoardState.MATCH)
             //Remove the tiles
             CandyGrid.removeCandyGroup(matches)
@@ -84,10 +93,10 @@ export default class GameScene extends Phaser.Scene {
             // No match so just swap the tiles back to their original position and reset
 
             CandyGrid.trySwapCandies(
-                CandySelection.firstSelectedCandy,
-                CandySelection.secondSelectedCandy
+                CandySelector.firstSelectedCandy,
+                CandySelector.secondSelectedCandy
             )
-            CandySelection.candyUp()
+            CandySelector.candyUp()
 
             this.tweens.addCounter({
                 duration: 200,
@@ -117,14 +126,14 @@ export default class GameScene extends Phaser.Scene {
                     hint.candies.forEach((h, i) => {
                         const bounce = Phaser.Math.Easing.Bounce.InOut(t.getValue())
                         const sine = Phaser.Math.Easing.Sine.InOut(t.getValue())
-                        h.setScale(0.7 + bounce * (0.7 - 0.75), 0.7 + bounce * (0.7 - 0.65))
+                        h.setScale(0.35 + bounce * (0.35 - 0.4), 0.35 + bounce * (0.35 - 0.3))
                         glowFXs[i].outerStrength = 2 + sine * 5
                     })
                 },
                 onStop: () => {
                     hint.candies.forEach((h, i) => {
                         glowFXs[i].outerStrength = 0
-                        h.setScale(0.7)
+                        h.setScale(0.3)
                     })
                 },
             })
@@ -143,6 +152,10 @@ export default class GameScene extends Phaser.Scene {
             case BoardState.FILL:
                 break
         }
+    }
+
+    private onScoreReachedMax = (currentScore: number, maxScore: number) => {
+        //
     }
 
     update(time: number, delta: number): void {

@@ -1,10 +1,10 @@
-import { BoardState } from '../const/BoardState'
-import Candy from '../objects/Candy'
-import GameScene from '../scenes/GameScene'
-import BoardStateMachine from './BoardStateMachine'
+import { BoardState } from '../../const/BoardState'
+import Candy from '../../objects/Candy'
+import GameScene from '../../scenes/GameScene'
+import BoardStateMachine from '../BoardStateMachine'
 import CandyGrid from './CandyGrid'
 
-export default class CandySelector {
+export class CandySelector {
     private static scene: GameScene
 
     public static firstSelectedCandy: Candy | undefined
@@ -62,3 +62,5 @@ export default class CandySelector {
         this.secondSelectedCandy = undefined
     }
 }
+
+export default CandySelector

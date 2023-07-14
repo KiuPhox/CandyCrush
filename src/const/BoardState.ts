@@ -5,4 +5,5 @@ export enum BoardState {
     MATCH = 'match',
     FILL = 'fill',
     NO_MOVE = 'no-move',
+    LEVEL_CLEAR = 'level-clear',
 }

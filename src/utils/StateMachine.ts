@@ -1,4 +1,4 @@
-export abstract class StateMachine<T> {
+abstract class StateMachine<T> {
     private static instance: StateMachine<any>
     protected currentState: T
     protected previousState: T
@@ -40,3 +40,5 @@ export abstract class StateMachine<T> {
         return this.previousState
     }
 }
+
+export default StateMachine

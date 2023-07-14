@@ -1,7 +1,8 @@
+import { SPECIAL_TYPE } from '../const/CandyConstant'
 import { PARTICLE_CONFIGS } from '../const/ParticleConfigs'
 import GameScene from '../scenes/GameScene'
 
-export class ParticleManager {
+class ParticleManager {
     private static scene: GameScene
 
     private static particleEmitters: Map<string, Phaser.GameObjects.Particles.ParticleEmitter>
@@ -12,7 +13,7 @@ export class ParticleManager {
 
         PARTICLE_CONFIGS.forEach((particleConfig) => {
             this.particleEmitters.set(
-                particleConfig.texture,
+                particleConfig.key,
                 this.scene.add.particles(
                     undefined,
                     undefined,
@@ -24,25 +25,35 @@ export class ParticleManager {
     }
 
     public static playCandyExplodeEffect(x: number, y: number, color: number): void {
-        const particle1Emitter = this.particleEmitters.get('particle-1')
-        const particle2Emitter = this.particleEmitters.get('particle-2')
-        const particle3Emitter = this.particleEmitters.get('particle-3')
+        const particle1Emitter = this.particleEmitters.get('broken-particle')
+        const particle2Emitter = this.particleEmitters.get('twinkle')
+        const particle3Emitter = this.particleEmitters.get('ring-impact')
 
         if (particle1Emitter && particle2Emitter && particle3Emitter) {
             particle1Emitter.particleTint = color
             particle3Emitter.particleTint = color
-            particle1Emitter.emitParticleAt(x, y)
-            particle2Emitter.emitParticleAt(x, y)
+            particle1Emitter.setDepth(1).emitParticleAt(x, y)
+            particle2Emitter.setDepth(1).emitParticleAt(x, y)
             particle3Emitter.emitParticleAt(x, y)
         }
     }
 
-    public static playCandyExplodeByStriped(x: number, y: number): void {
-        const particle4Emitter = this.particleEmitters.get('particle-4')
+    public static playCandyExplodeByStriped(
+        x: number,
+        y: number,
+        specialType: SPECIAL_TYPE,
+        color: number
+    ): void {
+        const particleEmitter = this.particleEmitters.get('striped-line')
 
-        if (particle4Emitter) {
-            particle4Emitter.setDepth(3)
-            particle4Emitter.emitParticleAt(x, y)
+        if (particleEmitter) {
+            particleEmitter.particleTint = color
+            particleEmitter.particleRotate =
+                specialType === SPECIAL_TYPE.HORIZONTAL_STRIPED ? 90 : 0
+            particleEmitter.setDepth(3)
+            particleEmitter.emitParticleAt(x, y)
         }
     }
 }
+
+export default ParticleManager

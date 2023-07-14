@@ -1,12 +1,15 @@
-export default class ProgressBar extends Phaser.GameObjects.Container {
+import ScoreManager from '../../managers/ScoreManager'
+
+class ProgressBar extends Phaser.GameObjects.Container {
     private progressFill: Phaser.GameObjects.Image
     private currentProgress: number
 
     constructor(scene: Phaser.Scene) {
         super(scene)
         scene.add.existing(this)
-
         this.createProgressbar()
+
+        ScoreManager.emitter.on('score-updated', this.onScoreUpdated)
     }
 
     private createProgressbar(): void {
@@ -23,15 +26,21 @@ export default class ProgressBar extends Phaser.GameObjects.Container {
         return this.currentProgress
     }
 
-    public updateProgress(progress: number) {
-        if (progress <= 50) {
-            this.currentProgress = progress
+    public updateProgress(progress: number): void {
+        if (progress / 2 <= 50) {
+            this.currentProgress = progress / 2
             this.scene.add.tween({
                 targets: this.progressFill,
-                scaleX: progress,
+                scaleX: progress / 2,
                 duration: 200,
                 ease: 'Quad.out',
             })
         }
     }
+
+    private onScoreUpdated = (currentScore: number, maxScore: number) => {
+        this.updateProgress((currentScore / maxScore) * 100)
+    }
 }
+
+export default ProgressBar

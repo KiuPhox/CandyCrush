@@ -1,6 +1,6 @@
 import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../const/CandyConstant'
 import { ICandy } from '../types/tile'
-import { ParticleManager } from '../managers/ParticleManager'
+import ParticleManager from '../managers/ParticleManager'
 
 export default class Candy extends Phaser.GameObjects.Sprite {
     private candyType: CANDY_TYPE
@@ -15,7 +15,7 @@ export default class Candy extends Phaser.GameObjects.Sprite {
         this.candyType = iCandy.candyType
         this.setSpecialType(iCandy.specialType)
 
-        this.setScale(0.7).setInteractive()
+        this.setScale(0.35).setInteractive()
         this.scene.add.existing(this)
 
         //this.preFX?.addColorMatrix()
