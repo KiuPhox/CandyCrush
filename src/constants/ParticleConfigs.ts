@@ -21,7 +21,6 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
             speed: { min: 100, max: 120 },
             gravityY: 200,
             duration: 300,
-            stopAfter: Random.Int(2, 3),
         },
     },
     {
@@ -45,7 +44,6 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
             gravityY: 200,
             duration: 300,
             blendMode: BlendModes.ADD,
-            stopAfter: Random.Int(3, 5),
         },
     },
     {
@@ -70,6 +68,32 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
             scale: 2,
             blendMode: BlendModes.ADD,
             stopAfter: 1,
+        },
+    },
+    {
+        key: 'left-confetti',
+        texture: 'square',
+        config: {
+            scale: 0.5,
+            lifespan: 5000,
+            alpha: { start: 1, end: 0, ease: 'Quart.in' },
+            rotate: { start: 0, end: -2000, random: true },
+            speedX: { min: 500, max: 2000 },
+            speedY: { min: -500, max: -1500 },
+            gravityY: 800,
+        },
+    },
+    {
+        key: 'right-confetti',
+        texture: 'square',
+        config: {
+            scale: 0.5,
+            lifespan: 5000,
+            alpha: { start: 1, end: 0, ease: 'Quart.in' },
+            rotate: { start: 0, end: 2000, random: true },
+            speedX: { min: -500, max: -2000 },
+            speedY: { min: -500, max: -1500 },
+            gravityY: 800,
         },
     },
 ]

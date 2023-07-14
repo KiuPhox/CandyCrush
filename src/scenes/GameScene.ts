@@ -1,5 +1,5 @@
-import { BoardState } from '../const/BoardState'
-import { GAME_CONFIG } from '../const/GameConfig'
+import { BoardState } from '../constants/BoardState'
+import { GAME_CONFIG } from '../constants/GameConfig'
 import BoardStateMachine from '../managers/BoardStateMachine'
 import CandyGrid from '../managers/candy-grid/CandyGrid'
 import CandyMatcher from '../managers/candy-grid/CandyMatcher'
@@ -150,6 +150,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     private onScoreReachedMax = (currentScore: number, maxScore: number) => {
+        ParticleManager.playConfettiEffect()
         this.levelClear = true
     }
 

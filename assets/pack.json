@@ -135,6 +135,11 @@
                 "type": "image",
                 "key": "progress-fill",
                 "url": "./assets/images/hud/progress-fill.png"
+            },
+            {
+                "type": "image",
+                "key": "square",
+                "url": "./assets/images/square.png"
             }
         ]
     }

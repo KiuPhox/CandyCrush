@@ -1,4 +1,4 @@
-import { CANDY_TYPE, SPECIAL_TYPE } from '../const/CandyConstant'
+import { CANDY_TYPE, SPECIAL_TYPE } from '../constants/CandyConstant'
 
 export interface ICandy {
     scene: Phaser.Scene

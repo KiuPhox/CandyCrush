@@ -1,6 +1,6 @@
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
-import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../../const/CandyConstant'
+import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../../constants/CandyConstant'
 import { Lightning } from '../../objects/Lightning'
 import ScoreManager from '../ScoreManager'
 import ParticleManager from '../ParticleManager'
@@ -9,7 +9,7 @@ import { Random } from '../../utils/Random'
 import BoardStateMachine from '../BoardStateMachine'
 import CandySelector from './CandySelector'
 import CandyGrid from './CandyGrid'
-import { BoardState } from '../../const/BoardState'
+import { BoardState } from '../../constants/BoardState'
 
 export class CandyRemover {
     private static scene: GameScene

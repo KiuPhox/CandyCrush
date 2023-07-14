@@ -1,4 +1,4 @@
-import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../const/CandyConstant'
+import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../constants/CandyConstant'
 import { ICandy } from '../types/tile'
 import ParticleManager from '../managers/ParticleManager'
 

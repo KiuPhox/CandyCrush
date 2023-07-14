@@ -17,6 +17,8 @@ class ScoreManager {
     }
 
     public static addScore(score: number): void {
+        if (this.currentScore >= this.maxScore) return
+
         this.currentScore += score
         this.emitter.emit('score-updated', this.currentScore, this.maxScore)
         if (this.currentScore >= this.maxScore) {

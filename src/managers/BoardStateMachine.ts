@@ -1,4 +1,4 @@
-import { BoardState } from '../const/BoardState'
+import { BoardState } from '../constants/BoardState'
 import StateMachine from '../utils/StateMachine'
 
 export class BoardStateMachine extends StateMachine<BoardState> {

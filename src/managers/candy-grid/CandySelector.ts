@@ -1,4 +1,4 @@
-import { BoardState } from '../../const/BoardState'
+import { BoardState } from '../../constants/BoardState'
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
 import BoardStateMachine from '../BoardStateMachine'

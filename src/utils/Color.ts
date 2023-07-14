@@ -3,7 +3,7 @@ export class Color {
         return Phaser.Display.Color.IntegerToRGB(hex)
     }
 
-    public static RGBtoHex(rgb: Phaser.Types.Display.ColorObject): number {
+    public static RGBtoHex(rgb: { r: number; b: number; g: number }): number {
         return (rgb.r << 16) + (rgb.g << 8) + rgb.b
     }
 
