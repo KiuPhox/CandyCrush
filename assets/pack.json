@@ -118,6 +118,11 @@
             },
             {
                 "type": "image",
+                "key": "striped-line",
+                "url": "./assets/images/striped-line.png"
+            },
+            {
+                "type": "image",
                 "key": "selected-frame",
                 "url": "./assets/images/selected-frame.png"
             },
