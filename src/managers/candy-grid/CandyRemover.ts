@@ -153,8 +153,8 @@ export class CandyRemover {
                         candiesToRemove.delete(removedCandy)
                         this.removeCandy(removedCandy)
                         ParticleManager.playCandyExplodeByStriped(
-                            removedCandy.x,
-                            removedCandy.y,
+                            CandyGrid.getCandyWorldPos(removedCandy).x,
+                            CandyGrid.getCandyWorldPos(removedCandy).y,
                             stripedCandy.getSpecialType(),
                             CANDY_COLORS[stripedCandy.getCandyType()]
                         )

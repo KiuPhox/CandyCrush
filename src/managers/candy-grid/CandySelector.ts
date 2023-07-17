@@ -54,7 +54,8 @@ class CandySelector {
     }
 
     private static setFramePosition(candy: Candy): void {
-        this.selectedFrame.setPosition(candy.getCenter().x, candy.getCenter().y).setVisible(true)
+        const pos = CandyGrid.getCandyWorldPos(candy)
+        this.selectedFrame.setPosition(pos.x, pos.y).setVisible(true)
     }
 
     public static candyUp(): void {

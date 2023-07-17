@@ -80,7 +80,6 @@ export default class GameScene extends Phaser.Scene {
             ScoreManager.reset(this.currentLevel)
             CandyGrid.clear()
             CandyGrid.create(0)
-            this.tryGetHint()
         } else {
             if (BoardStateMachine.getInstance().getCurrentState() === BoardState.FILL) {
                 this.tryGetHint()
@@ -120,9 +119,8 @@ export default class GameScene extends Phaser.Scene {
                 yoyo: true,
                 onUpdate: (t) => {
                     hint.candies.forEach((h, i) => {
-                        const bounce = Phaser.Math.Easing.Bounce.InOut(t.getValue())
                         const sine = Phaser.Math.Easing.Sine.InOut(t.getValue())
-                        h.setScale(0.35 + bounce * (0.35 - 0.4), 0.35 + bounce * (0.35 - 0.3))
+                        h.setScale(0.35 + sine * (0.35 - 0.4), 0.35 + sine * (0.35 - 0.3))
                         glowFXs[i].outerStrength = 2 + sine * 5
                     })
                 },

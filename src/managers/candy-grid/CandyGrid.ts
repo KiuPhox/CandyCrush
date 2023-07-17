@@ -37,6 +37,19 @@ export class CandyGrid {
                 2
         )
 
+        const board = this.scene.add.nineslice(
+            this.scene.scale.width / 2,
+            this.scene.scale.height / 2,
+            'grid',
+            undefined,
+            GAME_CONFIG.gridWidth * GAME_CONFIG.tileWidth + 10,
+            GAME_CONFIG.gridHeight * GAME_CONFIG.tileHeight + 10,
+            50,
+            50,
+            50,
+            50
+        )
+
         this.candyLayer = this.createLayerMask()
     }
 
@@ -392,6 +405,13 @@ export class CandyGrid {
             }
         }
         return []
+    }
+
+    public static getCandyWorldPos(candy: Candy): Phaser.Math.Vector2 {
+        return new Phaser.Math.Vector2(
+            candy.gridX * GAME_CONFIG.tileWidth + this.candyGridOffset.x,
+            candy.gridY * GAME_CONFIG.tileHeight + this.candyGridOffset.y
+        )
     }
 }
 

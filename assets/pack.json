@@ -140,6 +140,11 @@
                 "type": "image",
                 "key": "square",
                 "url": "./assets/images/square.png"
+            },
+            {
+                "type": "image",
+                "key": "grid",
+                "url": "./assets/images/grid.png"
             }
         ]
     }

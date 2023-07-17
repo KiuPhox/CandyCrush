@@ -5,7 +5,7 @@ export class Lightning extends Phaser.GameObjects.Rope {
         super(scene, 0, 0, 'lightning')
         scene.add.existing(this)
 
-        this.setDepth(5).setBlendMode(BlendModes.ADD).play('lightning')
+        this.setDepth(5).setColors(0xb6eafa).setBlendMode(BlendModes.ADD).play('lightning')
     }
 
     public setLine(pointA: Phaser.Math.Vector2, pointB: Phaser.Math.Vector2) {
