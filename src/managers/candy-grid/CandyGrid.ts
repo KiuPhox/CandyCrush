@@ -318,7 +318,7 @@ export class CandyGrid {
                                 }
                             }
                         }
-                        matches.push({ candies: [bombCandy, otherCandy], direction: 'horizontal' })
+                        matches.push({ candies: [otherCandy], direction: 'horizontal' })
                     } else if (
                         otherCandy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED ||
                         otherCandy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED
@@ -346,18 +346,32 @@ export class CandyGrid {
                                 }
                             }
                         }
-                        matches.push({ candies: [bombCandy], direction: 'horizontal' })
                     } else {
                         delay = CandyRemover.removeColorCandyByColorBomb(
                             bombCandy,
                             otherCandy.getCandyType(),
                             delay
                         )
-                        matches.push({ candies: [bombCandy], direction: 'horizontal' })
                     }
                     this.scene.time.delayedCall(delay, () => {
+                        CandyRemover.removeCandy(bombCandy)
                         CandyRemover.removeCandyGroup(matches)
                     })
+                } else if (
+                    (firstCandy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED &&
+                        secondCandy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED) ||
+                    (firstCandy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED &&
+                        secondCandy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED) ||
+                    (firstCandy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED &&
+                        secondCandy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED) ||
+                    (firstCandy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED &&
+                        secondCandy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED)
+                ) {
+                    firstCandy.setSpecialType(SPECIAL_TYPE.HORIZONTAL_STRIPED)
+                    secondCandy.setSpecialType(SPECIAL_TYPE.VERTICAL_STRIPED)
+                    const matches: IMatch[] = []
+                    matches.push({ candies: [firstCandy, secondCandy], direction: 'horizontal' })
+                    CandyRemover.removeCandyGroup(matches)
                 } else {
                     this.scene.checkMatches()
                 }
