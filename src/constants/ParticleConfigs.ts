@@ -96,4 +96,16 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
             gravityY: 800,
         },
     },
+    {
+        key: 'progress-bar-head',
+        texture: 'particle-3',
+        config: {
+            scale: 0.5,
+            lifespan: 5000,
+            alpha: { start: 1, end: 0, ease: 'Quart.in' },
+            rotate: { start: 0, end: 2000, random: true },
+            speedX: { min: -500, max: -2000 },
+            gravityY: 800,
+        },
+    },
 ]
