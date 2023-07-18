@@ -154,7 +154,7 @@ export class CandyGrid {
                 if (candy) {
                     this.scene.add.tween({
                         targets: candy,
-                        y: candy.y - 20,
+                        y: CandyGrid.getCandyWorldPos(candy).y - 20,
                         duration: 200,
                         delay: (i + j) * 100,
                         ease: 'Quad.out',

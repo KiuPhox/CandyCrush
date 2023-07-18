@@ -43,68 +43,60 @@ class CandySwapper {
 
         const a = new Phaser.Math.Vector2(firstCandy.gridX, firstCandy.gridY)
         const b = new Phaser.Math.Vector2(secondCandy.gridX, secondCandy.gridY)
+        const firstPos = CandyGrid.getCandyWorldPos(firstCandy)
+        const secondPos = CandyGrid.getCandyWorldPos(secondCandy)
 
         this.swapCandiesInternal(a, b)
 
         this.swapEffects.forEach((swapEffect) => swapEffect.destroy())
         // Add particle when candies move
 
-        const p1 = this.scene.add.particles(
-            firstCandy.getCenter().x ?? 0,
-            firstCandy.getCenter().y ?? 0,
-            'particle-3',
-            {
-                lifespan: 500,
-                alpha: { start: 1, end: 0, ease: 'Quad.out' },
-                scale: { start: 1, end: 0, ease: 'Quad.out' },
-                duration: 200,
-                blendMode: BlendModes.ADD,
-                stopAfter: 1,
-            }
-        )
+        const p1 = this.scene.add.particles(firstPos.x, firstPos.y, 'particle-3', {
+            lifespan: 500,
+            alpha: { start: 1, end: 0, ease: 'Quad.out' },
+            scale: { start: 1, end: 0, ease: 'Quad.out' },
+            duration: 200,
+            blendMode: BlendModes.ADD,
+            stopAfter: 1,
+        })
 
-        const p2 = this.scene.add.particles(
-            secondCandy.getCenter().x ?? 0,
-            secondCandy.getCenter().y ?? 0,
-            'particle-3',
-            {
-                lifespan: 500,
-                alpha: { start: 1, end: 0, ease: 'Quad.out' },
-                scale: { start: 1, end: 0, ease: 'Quad.out' },
-                duration: 200,
-                blendMode: BlendModes.ADD,
-                stopAfter: 1,
-            }
-        )
+        const p2 = this.scene.add.particles(secondPos.x, secondPos.y, 'particle-3', {
+            lifespan: 500,
+            alpha: { start: 1, end: 0, ease: 'Quad.out' },
+            scale: { start: 1, end: 0, ease: 'Quad.out' },
+            duration: 200,
+            blendMode: BlendModes.ADD,
+            stopAfter: 1,
+        })
 
         this.swapEffects.push(...[p1, p2])
         // Move them on the screen with tweens
 
         this.scene.add.tween({
             targets: firstCandy,
-            x: secondCandy.x,
-            y: secondCandy.y,
+            x: secondPos.x,
+            y: secondPos.y,
             ease: 'Quad.out',
             duration: 200,
             repeat: 0,
             yoyo: false,
             onUpdate: (tween: Phaser.Tweens.Tween, candy: Candy) => {
-                p1.x = candy.getCenter().x ?? 0
-                p1.y = candy.getCenter().y ?? 0
+                p1.x = candy.x
+                p1.y = candy.y
             },
         })
 
         this.scene.add.tween({
             targets: secondCandy,
-            x: firstCandy.x,
-            y: firstCandy.y,
+            x: firstPos.x,
+            y: firstPos.y,
             ease: 'Quad.out',
             duration: 200,
             repeat: 0,
             yoyo: false,
             onUpdate: (tween: Phaser.Tweens.Tween, candy: Candy) => {
-                p2.x = candy.getCenter().x ?? 0
-                p2.y = candy.getCenter().y ?? 0
+                p2.x = candy.x
+                p2.y = candy.y
             },
             onComplete: () => {
                 onComplete()
