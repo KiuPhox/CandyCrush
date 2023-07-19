@@ -1,5 +1,6 @@
 import { BoardState } from '../constants/BoardState'
 import { GAME_CONFIG } from '../constants/GameConfig'
+import BackgroundManager from '../managers/BackgroundManager'
 import BoardStateMachine from '../managers/BoardStateMachine'
 import CandyGrid from '../managers/candy-grid/CandyGrid'
 import CandyMatcher from '../managers/candy-grid/CandyMatcher'
@@ -21,6 +22,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     init(): void {
+        BackgroundManager.init(this)
         ParticleManager.init(this)
         CandyGrid.init(this)
         ScoreManager.init()
@@ -57,14 +59,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     public checkMatches(): void {
-        if (
-            this.hintTween &&
-            !this.hintTween.isDestroyed() &&
-            BoardStateMachine.getInstance().getCurrentState() !== BoardState.SWAP
-        ) {
-            this.hintTween.stop()
-            this.hintTween.destroy()
-        }
         //Call the getMatches function to check for spots where there is
         //a run of three or more tiles in a row
         const matches = CandyMatcher.getMatches()
@@ -98,6 +92,15 @@ export default class GameScene extends Phaser.Scene {
     }
 
     public tryGetHint(): void {
+        if (
+            this.hintTween &&
+            !this.hintTween.isDestroyed() &&
+            BoardStateMachine.getInstance().getCurrentState() !== BoardState.SWAP
+        ) {
+            this.hintTween.stop()
+            this.hintTween.destroy()
+        }
+
         const hint = CandyGrid.getHints()[0]
 
         if (hint) {
@@ -112,14 +115,14 @@ export default class GameScene extends Phaser.Scene {
                 to: 1,
                 yoyo: true,
                 onUpdate: (t) => {
-                    hint.candies.forEach((h: Candy, i) => {
+                    hint.candies.forEach((h: Candy) => {
                         const sine = Phaser.Math.Easing.Sine.InOut(t.getValue())
                         h.setBrightnessEffect(1 + sine * 1.5, true)
                         h.setScale(0.35 + sine * (0.35 - 0.38), 0.35 + sine * (0.35 - 0.32))
                     })
                 },
                 onStop: () => {
-                    hint.candies.forEach((h: Candy, i) => {
+                    hint.candies.forEach((h: Candy) => {
                         h.setBrightnessEffect(0, false)
                         h.setScale(0.35)
                     })
@@ -132,6 +135,9 @@ export default class GameScene extends Phaser.Scene {
 
     private onBoardStateChanged = (boardState: BoardState) => {
         switch (boardState) {
+            case BoardState.CREATE:
+                BackgroundManager.changeBackground()
+                break
             case BoardState.IDLE:
                 this.tryGetHint()
                 break
