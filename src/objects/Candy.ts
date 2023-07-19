@@ -5,6 +5,7 @@ import ParticleManager from '../managers/ParticleManager'
 export default class Candy extends Phaser.GameObjects.Sprite {
     private candyType: CANDY_TYPE
     private specialType: SPECIAL_TYPE
+    private colorMatrix: Phaser.FX.ColorMatrix
     public gridX: number
     public gridY: number
 
@@ -18,7 +19,10 @@ export default class Candy extends Phaser.GameObjects.Sprite {
         this.setScale(0.35).setInteractive()
         this.scene.add.existing(this)
 
-        //this.preFX?.addColorMatrix()
+        if (this.preFX) {
+            this.colorMatrix = this.preFX.addColorMatrix()
+            this.colorMatrix.active = false
+        }
     }
 
     private playExplodeEffect(): void {
@@ -62,6 +66,14 @@ export default class Candy extends Phaser.GameObjects.Sprite {
 
     public setCandyType(candyType: CANDY_TYPE): void {
         this.candyType = candyType
+        this.setTexture(candyType)
+    }
+
+    public setBrightnessEffect(value: number, active: boolean): void {
+        if (this.preFX) {
+            this.colorMatrix.brightness(value)
+            this.colorMatrix.active = active
+        }
     }
 
     destroy(fromScene?: boolean | undefined): void {

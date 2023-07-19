@@ -10,6 +10,8 @@ import CandyMatcher from './CandyMatcher'
 import CandySwapper from './CandySwapper'
 import ScoreManager from '../ScoreManager'
 import CandyRemover from './CandyRemover'
+import CandyShuffle from './CandyShuffle'
+import CandySelector from './CandySelector'
 
 export class CandyGrid {
     private static scene: GameScene
@@ -22,8 +24,10 @@ export class CandyGrid {
     public static init(scene: GameScene): void {
         this.scene = scene
         this.grid = []
+        CandySelector.init(scene)
         CandySwapper.init(scene)
         CandyRemover.init(scene)
+        CandyShuffle.init(scene)
         CandyMatcher.init(this.grid)
 
         this.candyGridOffset = new Phaser.Math.Vector2(
@@ -37,7 +41,7 @@ export class CandyGrid {
                 2
         )
 
-        const board = this.scene.add.nineslice(
+        this.scene.add.nineslice(
             this.scene.scale.width / 2,
             this.scene.scale.height / 2,
             'grid',
@@ -72,68 +76,45 @@ export class CandyGrid {
         return candyLayer
     }
 
-    public static create(level: number): (Candy | undefined)[][] {
-        BoardStateMachine.getInstance().updateState(BoardState.CREATE)
-        let candies: Candy[] = []
-
+    public static create(): void {
+        const candies: Candy[] = []
         for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
             this.grid[y] = []
             for (let x = 0; x < GAME_CONFIG.gridWidth; x++) {
-                const candy = this.addCandy(x, y)
-                this.grid[y][x] = candy
+                const candy = CandyGrid.addCandy(x, y)
+                CandyGrid.grid[y][x] = candy
                 candies.push(candy)
             }
         }
-
-        candies = Random.shuffleArray(candies)
-
-        const ROTATE_TWEEN_DUR = 1000
-        const ROTATE_TWEEN_REPEAT = 0
-        const MOVE_TWEEN_DUR = 500
-        const MOVE_TWEEN_DELAY = 500 / candies.length
-
         this.candyLayer.clearMask()
 
-        this.scene.tweens.addCounter({
-            from: 250,
-            to: 40,
-            duration: ROTATE_TWEEN_DUR,
-            ease: 'Sine.easeInOut',
-            repeat: ROTATE_TWEEN_REPEAT,
-            yoyo: true,
-            onUpdate: (t) => {
-                Phaser.Actions.RotateAroundDistance(
-                    candies,
-                    { x: this.scene.scale.width / 2, y: this.scene.scale.height / 2 },
-                    0.03,
-                    t.getValue()
-                )
-            },
-            onComplete: () => {
-                candies.forEach((candy, i) => {
-                    this.scene.add.tween({
-                        targets: candy,
-                        x: candy.gridX * GAME_CONFIG.tileWidth + this.candyGridOffset.x,
-                        y: candy.gridY * GAME_CONFIG.tileHeight + this.candyGridOffset.y,
-                        duration: MOVE_TWEEN_DUR,
-                        ease: 'Quad.out',
-                        delay: i * MOVE_TWEEN_DELAY,
-                    })
-                })
-            },
-        })
-
-        const totalDelay =
-            ROTATE_TWEEN_DUR * (ROTATE_TWEEN_REPEAT + 1) * 2 +
-            candies.length * MOVE_TWEEN_DELAY +
-            MOVE_TWEEN_DUR
+        const totalDelay = CandyShuffle.shuffle(candies, false)
 
         this.scene.time.delayedCall(totalDelay, () => {
             this.candyLayer.setMask(this.candyMask)
             this.scene.checkMatches()
         })
+    }
 
-        return this.grid
+    public static shuffle() {
+        const candies: Candy[] = []
+        for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
+            for (let x = 0; x < GAME_CONFIG.gridWidth; x++) {
+                const candy = this.grid[y][x]
+                if (candy) {
+                    candies.push(candy)
+                }
+            }
+        }
+
+        this.candyLayer.clearMask()
+
+        const totalDelay = CandyShuffle.shuffle(candies, true)
+
+        this.scene.time.delayedCall(totalDelay, () => {
+            this.candyLayer.setMask(this.candyMask)
+            this.scene.checkMatches()
+        })
     }
 
     public static clear(): void {
@@ -165,7 +146,7 @@ export class CandyGrid {
         }
     }
 
-    private static addCandy(
+    public static addCandy(
         x: number,
         y: number,
         _candyType?: CANDY_TYPE,

@@ -91,7 +91,7 @@ export class CandyRemover {
                     CANDY_COLORS[stripedCandy.getCandyType()]
                 )
 
-                match.candies[stripedCandyIndex].setSpecialType(
+                stripedCandy.setSpecialType(
                     match.direction === 'horizontal'
                         ? SPECIAL_TYPE.VERTICAL_STRIPED
                         : SPECIAL_TYPE.HORIZONTAL_STRIPED
@@ -101,13 +101,13 @@ export class CandyRemover {
 
                 this.scene.add.tween({
                     targets: othersCandy,
-                    x: match.candies[stripedCandyIndex].x,
-                    y: match.candies[stripedCandyIndex].y,
+                    x: stripedCandy.x,
+                    y: stripedCandy.y,
                     duration: 50,
                     ease: 'Quad.out',
                 })
 
-                candiesToRemove.delete(match.candies[stripedCandyIndex])
+                candiesToRemove.delete(stripedCandy)
             } else if (match.candies.length === 5) {
                 const candy: Candy = match.candies[2]
 

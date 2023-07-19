@@ -23,17 +23,14 @@ export default class GameScene extends Phaser.Scene {
     init(): void {
         ParticleManager.init(this)
         CandyGrid.init(this)
-        CandySelector.init(this)
         ScoreManager.init()
-        BoardStateMachine.getInstance().emitter.on('board-state-changed', this.onBoardStateChanged)
-        ScoreManager.emitter.on('score-reached-max', this.onScoreReachedMax)
+    }
 
+    create(): void {
+        CandyGrid.create()
         this.createProgressBar()
 
         this.cameras.main.setBackgroundColor(0x78aade)
-        //this.cameras.main.setZoom(11 / GAME_CONFIG.gridWidth)
-        CandyGrid.create(0)
-        this.tryGetHint()
         this.idleTimer = 5000
         this.levelClear = false
         this.currentLevel = 1
@@ -44,6 +41,9 @@ export default class GameScene extends Phaser.Scene {
             yoyo: true,
             repeat: -1,
         })
+
+        BoardStateMachine.getInstance().emitter.on('board-state-changed', this.onBoardStateChanged)
+        ScoreManager.emitter.on('score-reached-max', this.onScoreReachedMax)
     }
 
     private createProgressBar(): void {
@@ -78,13 +78,8 @@ export default class GameScene extends Phaser.Scene {
             this.currentLevel++
             this.levelClear = false
             ScoreManager.reset(this.currentLevel)
-            CandyGrid.clear()
-            CandyGrid.create(0)
+            CandyGrid.shuffle()
         } else {
-            if (BoardStateMachine.getInstance().getCurrentState() === BoardState.FILL) {
-                this.tryGetHint()
-            }
-
             // No match so just swap the tiles back to their original position and reset
 
             CandyGrid.trySwapCandies(
@@ -104,11 +99,10 @@ export default class GameScene extends Phaser.Scene {
 
     public tryGetHint(): void {
         const hint = CandyGrid.getHints()[0]
-        const glowFXs: Phaser.FX.Glow[] = []
 
         if (hint) {
             hint.candies.forEach((h: Candy) => {
-                if (h.preFX) glowFXs.push(h.preFX?.addGlow())
+                h.setBrightnessEffect(1, true)
             })
 
             this.hintTween = this.tweens.addCounter({
@@ -118,29 +112,28 @@ export default class GameScene extends Phaser.Scene {
                 to: 1,
                 yoyo: true,
                 onUpdate: (t) => {
-                    hint.candies.forEach((h, i) => {
+                    hint.candies.forEach((h: Candy, i) => {
                         const sine = Phaser.Math.Easing.Sine.InOut(t.getValue())
-                        h.setScale(0.35 + sine * (0.35 - 0.4), 0.35 + sine * (0.35 - 0.3))
-                        glowFXs[i].outerStrength = 2 + sine * 5
+                        h.setBrightnessEffect(1 + sine * 1.5, true)
+                        h.setScale(0.35 + sine * (0.35 - 0.38), 0.35 + sine * (0.35 - 0.32))
                     })
                 },
                 onStop: () => {
-                    hint.candies.forEach((h, i) => {
-                        glowFXs[i].outerStrength = 0
+                    hint.candies.forEach((h: Candy, i) => {
+                        h.setBrightnessEffect(0, false)
                         h.setScale(0.35)
                     })
                 },
             })
         } else {
-            CandyGrid.clear()
-            CandyGrid.create(0)
-            this.tryGetHint()
+            CandyGrid.shuffle()
         }
     }
 
     private onBoardStateChanged = (boardState: BoardState) => {
         switch (boardState) {
             case BoardState.IDLE:
+                this.tryGetHint()
                 break
             case BoardState.FILL:
                 break

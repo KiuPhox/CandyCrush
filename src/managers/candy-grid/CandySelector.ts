@@ -16,7 +16,11 @@ class CandySelector {
         this.scene = scene
         this.firstSelectedCandy = undefined
         this.secondSelectedCandy = undefined
-        this.selectedFrame = scene.add.image(0, 0, 'selected-frame').setScale(0.6).setVisible(false)
+        this.selectedFrame = scene.add
+            .image(0, 0, 'selected-frame')
+            .setScale(0.6)
+            .setVisible(false)
+            .setDepth(5)
 
         scene.add.tween({
             targets: this.selectedFrame,
