@@ -16,6 +16,7 @@ export default class GameScene extends Phaser.Scene {
     private idleTimer: number
     private levelClear: boolean
     private currentLevel: number
+    private debug: boolean
 
     constructor() {
         super('GameScene')
@@ -35,6 +36,7 @@ export default class GameScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor(0x78aade)
         this.idleTimer = 5000
         this.levelClear = false
+        this.debug = false
         this.currentLevel = 1
         this.anims.create({
             key: 'lightning',
@@ -42,6 +44,13 @@ export default class GameScene extends Phaser.Scene {
             frameRate: 30,
             yoyo: true,
             repeat: -1,
+        })
+
+        console.log('Debug mode is currently inactive. To toggle debug mode, press the D key')
+
+        this.input.keyboard?.on('keydown-D', () => {
+            this.debug = !this.debug
+            console.log('Debugging: ' + this.debug)
         })
 
         BoardStateMachine.getInstance().emitter.on('board-state-changed', this.onBoardStateChanged)
@@ -75,11 +84,12 @@ export default class GameScene extends Phaser.Scene {
             CandyGrid.shuffle()
         } else {
             // No match so just swap the tiles back to their original position and reset
-
-            CandyGrid.trySwapCandies(
-                CandySelector.firstSelectedCandy,
-                CandySelector.secondSelectedCandy
-            )
+            if (!this.debug) {
+                CandyGrid.trySwapCandies(
+                    CandySelector.firstSelectedCandy,
+                    CandySelector.secondSelectedCandy
+                )
+            }
 
             CandySelector.candyUp()
 
