@@ -38,6 +38,10 @@ class ParticleManager {
                 )
             }
         })
+
+        // this.scene.input.on('pointerdown', () => {
+        //     this.playConfettiEffect()
+        // })
     }
 
     public static playCandyExplodeEffect(x: number, y: number, color: number): void {
@@ -66,6 +70,16 @@ class ParticleManager {
             particleEmitter.particleTint = color
             particleEmitter.particleRotate =
                 specialType === SPECIAL_TYPE.HORIZONTAL_STRIPED ? 90 : 0
+            particleEmitter.setDepth(3)
+            particleEmitter.emitParticleAt(x, y)
+        }
+    }
+
+    public static playWrappedExplode(x: number, y: number, color: number): void {
+        const particleEmitter = this.particleEmitters.get('wrapped-shockwave')
+
+        if (particleEmitter) {
+            particleEmitter.particleTint = color
             particleEmitter.setDepth(3)
             particleEmitter.emitParticleAt(x, y)
         }

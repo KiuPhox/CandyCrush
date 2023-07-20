@@ -76,10 +76,10 @@ export default class GameScene extends Phaser.Scene {
         } else {
             // No match so just swap the tiles back to their original position and reset
 
-            CandyGrid.trySwapCandies(
-                CandySelector.firstSelectedCandy,
-                CandySelector.secondSelectedCandy
-            )
+            // CandyGrid.trySwapCandies(
+            //     CandySelector.firstSelectedCandy,
+            //     CandySelector.secondSelectedCandy
+            // )
             CandySelector.candyUp()
 
             this.tweens.addCounter({

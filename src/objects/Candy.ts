@@ -54,6 +54,9 @@ export default class Candy extends Phaser.GameObjects.Sprite {
             case SPECIAL_TYPE.HORIZONTAL_STRIPED:
                 this.setTexture(`${this.candyType}-${this.specialType}`)
                 break
+            case SPECIAL_TYPE.WRAPPED:
+                this.setTexture(`${this.candyType}-${this.specialType}`)
+                break
             case SPECIAL_TYPE.COLOR_BOMB:
                 this.setTexture('color')
                 break

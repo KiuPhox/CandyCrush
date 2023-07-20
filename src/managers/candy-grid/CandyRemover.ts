@@ -52,89 +52,32 @@ export class CandyRemover {
         return delay
     }
 
-    public static removeCandyGroup(matches: IMatch[]): void {
-        const candiesToRemove: Set<Candy> = new Set<Candy>()
-
-        let removeDelay = 0
-
+    private static getWrappedCandies(matches: IMatch[]): Candy[] {
+        const candyCounts = new Map<Candy, number>()
+        // Check for wrapped candy
         for (const match of matches) {
-            for (let i = 0; i < match.candies.length; i++) {
-                candiesToRemove.add(match.candies[i])
-            }
-
-            // Match 4
-            if (match.candies.length === 4) {
-                // If there are any selected candy, that candy will become a striped candy else choose random candy in the match
-                let stripedCandyIndex = Random.Percent(50) ? 1 : 2
-
-                if (
-                    CandySelector.firstSelectedCandy &&
-                    match.candies.indexOf(CandySelector.firstSelectedCandy) !== -1
-                ) {
-                    stripedCandyIndex = match.candies.indexOf(CandySelector.firstSelectedCandy)
-                } else if (
-                    CandySelector.secondSelectedCandy &&
-                    match.candies.indexOf(CandySelector.secondSelectedCandy) !== -1
-                ) {
-                    stripedCandyIndex = match.candies.indexOf(CandySelector.secondSelectedCandy)
-                }
-
-                // Remove the striped candy from the list
-                const othersCandy = [...match.candies]
-                othersCandy.splice(stripedCandyIndex)
-
-                const stripedCandy: Candy = match.candies[stripedCandyIndex]
-
-                ParticleManager.playCandyExplodeEffect(
-                    stripedCandy.x,
-                    stripedCandy.y,
-                    CANDY_COLORS[stripedCandy.getCandyType()]
-                )
-
-                stripedCandy.setSpecialType(
-                    match.direction === 'horizontal'
-                        ? SPECIAL_TYPE.VERTICAL_STRIPED
-                        : SPECIAL_TYPE.HORIZONTAL_STRIPED
-                )
-
-                // Move others candies to the striped candy
-
-                this.scene.add.tween({
-                    targets: othersCandy,
-                    x: stripedCandy.x,
-                    y: stripedCandy.y,
-                    duration: 50,
-                    ease: 'Quad.out',
-                })
-
-                candiesToRemove.delete(stripedCandy)
-            } else if (match.candies.length === 5) {
-                const candy: Candy = match.candies[2]
-
-                candy.setCandyType(CANDY_TYPE.COLOR)
-                candy.setSpecialType(SPECIAL_TYPE.COLOR_BOMB)
-                candiesToRemove.delete(candy)
-
-                ParticleManager.playCandyExplodeEffect(
-                    candy.x,
-                    candy.y,
-                    CANDY_COLORS[candy.getCandyType()]
-                )
-
-                this.scene.add.tween({
-                    targets: [
-                        match.candies[0],
-                        match.candies[1],
-                        match.candies[3],
-                        match.candies[4],
-                    ],
-                    x: candy.x,
-                    y: candy.y,
-                    duration: 50,
-                    ease: 'Quad.out',
-                })
+            for (const candy of match.candies) {
+                const count = candyCounts.get(candy) || 0
+                candyCounts.set(candy, count + 1)
             }
         }
+
+        const wrappedCandies: Candy[] = []
+
+        candyCounts.forEach((count: number, candy: Candy) => {
+            if (count === 2) {
+                wrappedCandies.push(candy)
+            }
+        })
+
+        return wrappedCandies
+    }
+
+    public static removeCandyGroup(matches: IMatch[]): void {
+        const candiesToRemove: Set<Candy> = new Set<Candy>()
+        const wrappedCandies = this.getWrappedCandies(matches)
+
+        let removeDelay = 0
 
         const removeCandyByStriped = (
             stripedCandy: Candy,
@@ -173,9 +116,103 @@ export class CandyRemover {
             }
         }
 
+        for (const match of matches) {
+            for (let i = 0; i < match.candies.length; i++) {
+                const candy = match.candies[i]
+                // Wrapped Candy
+                if (wrappedCandies.indexOf(candy) !== -1) {
+                    const othersCandy = [...match.candies]
+                    othersCandy.splice(i)
+                    this.scene.add.tween({
+                        targets: othersCandy,
+                        x: candy.x,
+                        y: candy.y,
+                        duration: 50,
+                        ease: 'Quad.out',
+                    })
+                    candy.setSpecialType(SPECIAL_TYPE.WRAPPED)
+                    candiesToRemove.delete(candy)
+                    match.type = 'wrapped'
+                } else {
+                    candiesToRemove.add(candy)
+                }
+            }
+
+            // Match 4
+            if (match.candies.length === 4 && match.type !== 'wrapped') {
+                // If there are any selected candy, that candy will become a striped candy else choose random candy in the match
+                let stripedCandyIndex = Random.Percent(50) ? 1 : 2
+
+                if (
+                    CandySelector.firstSelectedCandy &&
+                    match.candies.indexOf(CandySelector.firstSelectedCandy) !== -1
+                ) {
+                    stripedCandyIndex = match.candies.indexOf(CandySelector.firstSelectedCandy)
+                } else if (
+                    CandySelector.secondSelectedCandy &&
+                    match.candies.indexOf(CandySelector.secondSelectedCandy) !== -1
+                ) {
+                    stripedCandyIndex = match.candies.indexOf(CandySelector.secondSelectedCandy)
+                }
+
+                // Remove the striped candy from the list
+                const otherCandies = [...match.candies]
+                otherCandies.splice(stripedCandyIndex)
+
+                const stripedCandy: Candy = match.candies[stripedCandyIndex]
+
+                ParticleManager.playCandyExplodeEffect(
+                    stripedCandy.x,
+                    stripedCandy.y,
+                    CANDY_COLORS[stripedCandy.getCandyType()]
+                )
+
+                stripedCandy.setSpecialType(
+                    match.type === 'horizontal'
+                        ? SPECIAL_TYPE.VERTICAL_STRIPED
+                        : SPECIAL_TYPE.HORIZONTAL_STRIPED
+                )
+
+                // Move others candies to the striped candy
+
+                this.scene.add.tween({
+                    targets: otherCandies,
+                    x: stripedCandy.x,
+                    y: stripedCandy.y,
+                    duration: 50,
+                    ease: 'Quad.out',
+                })
+
+                candiesToRemove.delete(stripedCandy)
+            } else if (match.candies.length === 5) {
+                const candy: Candy = match.candies[2]
+
+                candy.setCandyType(CANDY_TYPE.COLOR)
+                candy.setSpecialType(SPECIAL_TYPE.COLOR_BOMB)
+                candiesToRemove.delete(candy)
+
+                ParticleManager.playCandyExplodeEffect(
+                    candy.x,
+                    candy.y,
+                    CANDY_COLORS[candy.getCandyType()]
+                )
+
+                const otherCandies = [...match.candies]
+                otherCandies.splice(2)
+
+                this.scene.add.tween({
+                    targets: otherCandies,
+                    x: candy.x,
+                    y: candy.y,
+                    duration: 50,
+                    ease: 'Quad.out',
+                })
+            }
+        }
+
         for (const candy of candiesToRemove) {
             if (candy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED) {
-                this.scene.cameras.main.shake(200, 0.002)
+                this.scene.cameras.main.shake(100, 0.02)
 
                 for (let i = candy.gridX; i >= 0; i--) {
                     const c = CandyGrid.grid[candy.gridY][i]
@@ -187,7 +224,7 @@ export class CandyRemover {
                 }
                 ScoreManager.addScore(8)
             } else if (candy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED) {
-                this.scene.cameras.main.shake(200, 0.002)
+                this.scene.cameras.main.shake(100, 0.02)
 
                 for (let i = candy.gridY; i >= 0; i--) {
                     const c = CandyGrid.grid[i][candy.gridX]
@@ -199,6 +236,31 @@ export class CandyRemover {
                     removeCandyByStriped(candy, c, 30 * (i + 1 - candy.gridY))
                 }
                 ScoreManager.addScore(8)
+            } else if (candy.getSpecialType() === SPECIAL_TYPE.WRAPPED) {
+                this.scene.cameras.main.shake(100, 0.02)
+                ParticleManager.playWrappedExplode(
+                    candy.x,
+                    candy.y,
+                    CANDY_COLORS[candy.getCandyType()]
+                )
+                const neighborCandies = CandyGrid.getNeighborCandies(candy)
+                for (const neighborCandy of neighborCandies) {
+                    if (neighborCandy.getSpecialType() === SPECIAL_TYPE.NONE) {
+                        candiesToRemove.delete(neighborCandy)
+                        this.removeCandy(neighborCandy, 0)
+                    } else if (neighborCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
+                        removeDelay = this.removeColorCandyByColorBomb(
+                            neighborCandy,
+                            candy.getCandyType(),
+                            removeDelay
+                        )
+                        candiesToRemove.delete(neighborCandy)
+                        this.removeCandy(neighborCandy, removeDelay)
+                    } else {
+                        candiesToRemove.add(neighborCandy)
+                    }
+                }
+                ScoreManager.addScore(neighborCandies.length)
             }
         }
 

@@ -29,7 +29,7 @@ class CandyMatcher {
                 const candy = this.grid[y][x]
 
                 if (candy && !this.visited[y][x]) {
-                    const match: IMatch = { candies: [candy], direction: 'horizontal' }
+                    const match: IMatch = { candies: [candy], type: 'horizontal' }
                     let matchLength = 1
 
                     for (let i = x + 1; i < this.grid[y].length; i++) {
@@ -58,7 +58,7 @@ class CandyMatcher {
                 const candy = this.grid[y][x]
 
                 if (candy && !this.visited[y][x]) {
-                    const match: IMatch = { candies: [candy], direction: 'vertical' }
+                    const match: IMatch = { candies: [candy], type: 'vertical' }
                     let matchLength = 1
 
                     for (let i = y + 1; i < this.grid.length; i++) {

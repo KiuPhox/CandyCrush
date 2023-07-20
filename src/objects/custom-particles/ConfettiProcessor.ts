@@ -16,6 +16,7 @@ class ConfettiProcessor extends Phaser.GameObjects.Particles.ParticleProcessor {
     ): void {
         particle.velocityX *= this.dampingX
         particle.velocityY *= this.dampingY
+        particle.scaleX = (((t * Math.ceil(Math.abs(particle.bounce))) % 1) - 0.5) * 2
     }
 }
 
