@@ -85,6 +85,16 @@ class ParticleManager {
         }
     }
 
+    public static playWrappedBigExplode(x: number, y: number, color: number): void {
+        const particleEmitter = this.particleEmitters.get('wrapped-big-shockwave')
+
+        if (particleEmitter) {
+            particleEmitter.particleTint = color
+            particleEmitter.setDepth(3)
+            particleEmitter.emitParticleAt(x, y)
+        }
+    }
+
     public static playConfettiEffect() {
         const leftConfetti = this.particleEmitters.get('left-confetti')
         const rightConfetti = this.particleEmitters.get('right-confetti')

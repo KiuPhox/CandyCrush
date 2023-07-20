@@ -1,3 +1,4 @@
+import { CANDY_TYPE } from '../../constants/CandyConstant'
 import Candy from '../../objects/Candy'
 import { IMatch } from '../../types/match'
 
@@ -28,7 +29,7 @@ class CandyMatcher {
             for (let x = 0; x < this.grid[y].length - 2; x++) {
                 const candy = this.grid[y][x]
 
-                if (candy && !this.visited[y][x]) {
+                if (candy && candy.getCandyType() !== CANDY_TYPE.COLOR && !this.visited[y][x]) {
                     const match: IMatch = { candies: [candy], type: 'horizontal' }
                     let matchLength = 1
 
@@ -57,7 +58,7 @@ class CandyMatcher {
             for (let y = 0; y < this.grid.length - 2; y++) {
                 const candy = this.grid[y][x]
 
-                if (candy && !this.visited[y][x]) {
+                if (candy && candy.getCandyType() !== CANDY_TYPE.COLOR && !this.visited[y][x]) {
                     const match: IMatch = { candies: [candy], type: 'vertical' }
                     let matchLength = 1
 

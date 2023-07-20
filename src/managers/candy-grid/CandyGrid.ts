@@ -1,4 +1,4 @@
-import { CANDY_TYPE, SPECIAL_TYPE } from '../../constants/CandyConstant'
+import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../../constants/CandyConstant'
 import { GAME_CONFIG } from '../../constants/GameConfig'
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
@@ -14,6 +14,7 @@ import CandyShuffle from './CandyShuffle'
 import CandySelector from './CandySelector'
 import BigCandy from '../../objects/BigCandy'
 import { CandyRemoveSet } from '../../types/general'
+import ParticleManager from '../ParticleManager'
 
 export class CandyGrid {
     private static scene: GameScene
@@ -361,44 +362,53 @@ export class CandyGrid {
                 matches.push({ candies: [firstCandy, secondCandy], type: 'horizontal' })
                 CandyRemover.removeCandyGroup(matches)
             } else if (
+                firstCandy.getSpecialType() === SPECIAL_TYPE.WRAPPED &&
+                secondCandy.getSpecialType() === SPECIAL_TYPE.WRAPPED
+            ) {
+                ParticleManager.playWrappedBigExplode(
+                    firstCandy.x,
+                    firstCandy.y,
+                    CANDY_COLORS[firstCandy.getCandyType()]
+                )
+
+                const neighborCandies = this.getNeighborCandies(firstCandy, 3)
+                const o: CandyRemoveSet = { removeDelay: 0, candiesToRemove: new Set<Candy>() }
+
+                CandyRemover.removeCandy(firstCandy)
+                CandyRemover.removeCandy(secondCandy)
+
+                for (const neighborCandy of neighborCandies) {
+                    if (neighborCandy === secondCandy) continue
+                    if (neighborCandy.getSpecialType() === SPECIAL_TYPE.NONE) {
+                        o.candiesToRemove.delete(neighborCandy)
+                        CandyRemover.removeCandy(neighborCandy, 0)
+                    } else if (neighborCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
+                        o.removeDelay = CandyRemover.removeColorCandyByColorBomb(
+                            neighborCandy,
+                            firstCandy.getCandyType(),
+                            o.removeDelay
+                        )
+                        o.candiesToRemove.delete(neighborCandy)
+                        CandyRemover.removeCandy(neighborCandy, o.removeDelay)
+                    } else {
+                        o.candiesToRemove.add(neighborCandy)
+                    }
+                }
+
+                CandyRemover.processCandiesToRemove(o)
+                ScoreManager.addScore(neighborCandies.length)
+
+                this.scene.tweens.addCounter({
+                    duration: o.removeDelay,
+                    onComplete: () => {
+                        const matches: IMatch[] = []
+                        CandyRemover.removeCandyGroup(matches)
+                    },
+                })
+            } else if (
                 (firstCandy.isStriped && secondCandy.getSpecialType() === SPECIAL_TYPE.WRAPPED) ||
                 (secondCandy.isStriped && firstCandy.getSpecialType() === SPECIAL_TYPE.WRAPPED)
             ) {
-                // const removeCandyByStriped = (
-                //     stripedCandy: Candy,
-                //     removedCandy: Candy | undefined,
-                //     delay: number
-                // ) => {
-                //     if (
-                //         removedCandy &&
-                //         (removedCandy.getSpecialType() === SPECIAL_TYPE.NONE ||
-                //             removedCandy === stripedCandy)
-                //     ) {
-                //         this.scene.tweens.addCounter({
-                //             duration: delay,
-                //             onComplete: () => {
-                //                 CandyRemover.removeCandy(removedCandy)
-                //                 ParticleManager.playCandyExplodeByStriped(
-                //                     CandyGrid.getCandyWorldPos(removedCandy).x,
-                //                     CandyGrid.getCandyWorldPos(removedCandy).y,
-                //                     stripedCandy.getSpecialType(),
-                //                     CANDY_COLORS[stripedCandy.getCandyType()]
-                //                 )
-                //             },
-                //         })
-                //     } else if (
-                //         removedCandy &&
-                //         removedCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB
-                //     ) {
-                //         removeDelay += CandyRemover.removeColorCandyByColorBomb(
-                //             removedCandy,
-                //             stripedCandy.getCandyType(),
-                //             0
-                //         )
-                //         CandyRemover.removeCandy(removedCandy, removeDelay)
-                //     }
-                // }
-
                 CandyRemover.removeCandy(firstCandy)
                 CandyRemover.removeCandy(secondCandy)
 
@@ -441,9 +451,7 @@ export class CandyGrid {
                                     o
                                 )
                             }
-
                             CandyRemover.processCandiesToRemove(o)
-
                             ScoreManager.addScore(8)
                         }
 
@@ -559,30 +567,18 @@ export class CandyGrid {
         return []
     }
 
-    public static getNeighborCandies(candy: Candy): Candy[] {
-        const neighborsOffsets = [
-            [0, 1],
-            [0, -1],
-            [1, 0],
-            [-1, 0],
-            [1, 1],
-            [-1, 1],
-            [1, -1],
-            [-1, -1],
-        ]
-
+    public static getNeighborCandies(candy: Candy, distance: number): Candy[] {
         const neighborCandies: Candy[] = []
 
-        for (let i = 0; i < neighborsOffsets.length; i++) {
-            const y = candy.gridY + neighborsOffsets[i][0]
-            const x = candy.gridX + neighborsOffsets[i][1]
+        for (let i = candy.gridY - distance; i <= candy.gridY + distance; i++) {
+            for (let j = candy.gridX - distance; j <= candy.gridX + distance; j++) {
+                if (i < 0 || i >= this.grid.length) continue
+                if (j < 0 || j >= this.grid[0].length) continue
 
-            if (y < 0 || y >= this.grid.length) continue
-            if (x < 0 || x >= this.grid[0].length) continue
-
-            const neighborCandy = this.grid[y][x]
-            if (neighborCandy) {
-                neighborCandies.push(neighborCandy)
+                const neighborCandy = this.grid[i][j]
+                if (neighborCandy && neighborCandy !== candy) {
+                    neighborCandies.push(neighborCandy)
+                }
             }
         }
         return neighborCandies

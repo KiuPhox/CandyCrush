@@ -145,7 +145,7 @@ export class CandyRemover {
                     candy.y,
                     CANDY_COLORS[candy.getCandyType()]
                 )
-                const neighborCandies = CandyGrid.getNeighborCandies(candy)
+                const neighborCandies = CandyGrid.getNeighborCandies(candy, 1)
                 for (const neighborCandy of neighborCandies) {
                     if (neighborCandy.getSpecialType() === SPECIAL_TYPE.NONE) {
                         o.candiesToRemove.delete(neighborCandy)
@@ -162,6 +162,7 @@ export class CandyRemover {
                         o.candiesToRemove.add(neighborCandy)
                     }
                 }
+                this.removeCandy(candy)
                 ScoreManager.addScore(neighborCandies.length)
             }
         }

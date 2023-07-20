@@ -83,6 +83,18 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
         },
     },
     {
+        key: 'wrapped-big-shockwave',
+        texture: 'particle-5',
+        config: {
+            lifespan: 500,
+            duration: 300,
+            alpha: { start: 1, end: 0, ease: 'Quirt.in' },
+            scale: { start: 0, end: 8, ease: 'Cubic.out' },
+            blendMode: BlendModes.ADD,
+            stopAfter: 1,
+        },
+    },
+    {
         key: 'left-confetti',
         texture: 'square',
         config: {
