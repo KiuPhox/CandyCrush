@@ -180,6 +180,12 @@
                 "type": "image",
                 "key": "grid",
                 "url": "./assets/images/grid.png"
+            },
+            {
+                "type": "bitmapFont",
+                "key": "bananasp",
+                "textureURL": "./assets/fonts/bananasp.png",
+                "fontDataURL": "./assets/fonts/bananasp.xml"
             }
         ]
     }
