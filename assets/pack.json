@@ -33,6 +33,36 @@
             },
             {
                 "type": "image",
+                "key": "blue-wrapped",
+                "url": "./assets/images/blue-wrapped.png"
+            },
+            {
+                "type": "image",
+                "key": "green-wrapped",
+                "url": "./assets/images/green-wrapped.png"
+            },
+            {
+                "type": "image",
+                "key": "orange-wrapped",
+                "url": "./assets/images/orange-wrapped.png"
+            },
+            {
+                "type": "image",
+                "key": "purple-wrapped",
+                "url": "./assets/images/purple-wrapped.png"
+            },
+            {
+                "type": "image",
+                "key": "red-wrapped",
+                "url": "./assets/images/red-wrapped.png"
+            },
+            {
+                "type": "image",
+                "key": "yellow-wrapped",
+                "url": "./assets/images/yellow-wrapped.png"
+            },
+            {
+                "type": "image",
                 "key": "blue-vertical-striped",
                 "url": "./assets/images/blue-vertical-striped.png"
             },
@@ -115,6 +145,11 @@
                 "type": "image",
                 "key": "particle-4",
                 "url": "./assets/images/particle-4.png"
+            },
+            {
+                "type": "image",
+                "key": "particle-5",
+                "url": "./assets/images/particle-5.png"
             },
             {
                 "type": "image",
