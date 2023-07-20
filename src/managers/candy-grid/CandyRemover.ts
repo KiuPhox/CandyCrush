@@ -10,6 +10,7 @@ import BoardStateMachine from '../BoardStateMachine'
 import CandySelector from './CandySelector'
 import CandyGrid from './CandyGrid'
 import { BoardState } from '../../constants/BoardState'
+import { CandyRemoveSet } from '../../types/general'
 
 export class CandyRemover {
     private static scene: GameScene
@@ -73,48 +74,103 @@ export class CandyRemover {
         return wrappedCandies
     }
 
-    public static removeCandyGroup(matches: IMatch[]): void {
-        const candiesToRemove: Set<Candy> = new Set<Candy>()
-        const wrappedCandies = this.getWrappedCandies(matches)
+    public static removeCandyByStriped(
+        stripedCandy: Candy,
+        removedCandy: Candy | undefined,
+        delay: number,
+        o: CandyRemoveSet
+    ): void {
+        if (
+            removedCandy &&
+            (removedCandy.getSpecialType() === SPECIAL_TYPE.NONE || removedCandy === stripedCandy)
+        ) {
+            o.removeDelay = Math.max(o.removeDelay, delay)
+            this.scene.tweens.addCounter({
+                duration: delay,
+                onComplete: () => {
+                    o.candiesToRemove.delete(removedCandy)
+                    this.removeCandy(removedCandy)
+                    ParticleManager.playCandyExplodeByStriped(
+                        CandyGrid.getCandyWorldPos(removedCandy).x,
+                        CandyGrid.getCandyWorldPos(removedCandy).y,
+                        stripedCandy.getSpecialType(),
+                        CANDY_COLORS[stripedCandy.getCandyType()]
+                    )
+                },
+            })
+        } else if (removedCandy && removedCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
+            o.removeDelay = this.removeColorCandyByColorBomb(
+                removedCandy,
+                stripedCandy.getCandyType(),
+                o.removeDelay
+            )
+            o.candiesToRemove.delete(removedCandy)
+            this.removeCandy(removedCandy, o.removeDelay)
+        } else if (removedCandy && removedCandy !== stripedCandy) {
+            o.candiesToRemove.add(removedCandy)
+        }
+    }
 
-        let removeDelay = 0
+    public static processCandiesToRemove(o: CandyRemoveSet): void {
+        for (const candy of o.candiesToRemove) {
+            if (candy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED) {
+                this.scene.cameras.main.shake(100, 0.02)
 
-        const removeCandyByStriped = (
-            stripedCandy: Candy,
-            removedCandy: Candy | undefined,
-            delay: number
-        ) => {
-            if (
-                removedCandy &&
-                (removedCandy.getSpecialType() === SPECIAL_TYPE.NONE ||
-                    removedCandy === stripedCandy)
-            ) {
-                removeDelay = Math.max(removeDelay, delay)
-                this.scene.tweens.addCounter({
-                    duration: delay,
-                    onComplete: () => {
-                        candiesToRemove.delete(removedCandy)
-                        this.removeCandy(removedCandy)
-                        ParticleManager.playCandyExplodeByStriped(
-                            CandyGrid.getCandyWorldPos(removedCandy).x,
-                            CandyGrid.getCandyWorldPos(removedCandy).y,
-                            stripedCandy.getSpecialType(),
-                            CANDY_COLORS[stripedCandy.getCandyType()]
-                        )
-                    },
-                })
-            } else if (removedCandy && removedCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
-                removeDelay = this.removeColorCandyByColorBomb(
-                    removedCandy,
-                    stripedCandy.getCandyType(),
-                    removeDelay
+                for (let i = candy.gridX; i >= 0; i--) {
+                    const c = CandyGrid.grid[candy.gridY][i]
+                    this.removeCandyByStriped(candy, c, 30 * (candy.gridX - i + 1), o)
+                }
+                for (let i = candy.gridX + 1; i < CandyGrid.grid[candy.gridY].length; i++) {
+                    const c = CandyGrid.grid[candy.gridY][i]
+                    this.removeCandyByStriped(candy, c, 30 * (i + 1 - candy.gridX), o)
+                }
+                ScoreManager.addScore(8)
+            } else if (candy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED) {
+                this.scene.cameras.main.shake(100, 0.02)
+
+                for (let i = candy.gridY; i >= 0; i--) {
+                    const c = CandyGrid.grid[i][candy.gridX]
+                    this.removeCandyByStriped(candy, c, 30 * (candy.gridY - i + 1), o)
+                }
+
+                for (let i = candy.gridY + 1; i < CandyGrid.grid.length; i++) {
+                    const c = CandyGrid.grid[i][candy.gridX]
+                    this.removeCandyByStriped(candy, c, 30 * (i + 1 - candy.gridY), o)
+                }
+                ScoreManager.addScore(8)
+            } else if (candy.getSpecialType() === SPECIAL_TYPE.WRAPPED) {
+                this.scene.cameras.main.shake(100, 0.02)
+                ParticleManager.playWrappedExplode(
+                    candy.x,
+                    candy.y,
+                    CANDY_COLORS[candy.getCandyType()]
                 )
-                candiesToRemove.delete(removedCandy)
-                this.removeCandy(removedCandy, removeDelay)
-            } else if (removedCandy && removedCandy !== stripedCandy) {
-                candiesToRemove.add(removedCandy)
+                const neighborCandies = CandyGrid.getNeighborCandies(candy)
+                for (const neighborCandy of neighborCandies) {
+                    if (neighborCandy.getSpecialType() === SPECIAL_TYPE.NONE) {
+                        o.candiesToRemove.delete(neighborCandy)
+                        this.removeCandy(neighborCandy, 0)
+                    } else if (neighborCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
+                        o.removeDelay = this.removeColorCandyByColorBomb(
+                            neighborCandy,
+                            candy.getCandyType(),
+                            o.removeDelay
+                        )
+                        o.candiesToRemove.delete(neighborCandy)
+                        this.removeCandy(neighborCandy, o.removeDelay)
+                    } else {
+                        o.candiesToRemove.add(neighborCandy)
+                    }
+                }
+                ScoreManager.addScore(neighborCandies.length)
             }
         }
+    }
+
+    public static removeCandyGroup(matches: IMatch[]): void {
+        const wrappedCandies = this.getWrappedCandies(matches)
+
+        const o: CandyRemoveSet = { removeDelay: 0, candiesToRemove: new Set<Candy>() }
 
         for (const match of matches) {
             for (let i = 0; i < match.candies.length; i++) {
@@ -131,10 +187,10 @@ export class CandyRemover {
                         ease: 'Quad.out',
                     })
                     candy.setSpecialType(SPECIAL_TYPE.WRAPPED)
-                    candiesToRemove.delete(candy)
+                    o.candiesToRemove.delete(candy)
                     match.type = 'wrapped'
                 } else {
-                    candiesToRemove.add(candy)
+                    o.candiesToRemove.add(candy)
                 }
             }
 
@@ -183,13 +239,13 @@ export class CandyRemover {
                     ease: 'Quad.out',
                 })
 
-                candiesToRemove.delete(stripedCandy)
+                o.candiesToRemove.delete(stripedCandy)
             } else if (match.candies.length === 5) {
                 const candy: Candy = match.candies[2]
 
                 candy.setCandyType(CANDY_TYPE.COLOR)
                 candy.setSpecialType(SPECIAL_TYPE.COLOR_BOMB)
-                candiesToRemove.delete(candy)
+                o.candiesToRemove.delete(candy)
 
                 ParticleManager.playCandyExplodeEffect(
                     candy.x,
@@ -210,65 +266,13 @@ export class CandyRemover {
             }
         }
 
-        for (const candy of candiesToRemove) {
-            if (candy.getSpecialType() === SPECIAL_TYPE.HORIZONTAL_STRIPED) {
-                this.scene.cameras.main.shake(100, 0.02)
+        this.processCandiesToRemove(o)
 
-                for (let i = candy.gridX; i >= 0; i--) {
-                    const c = CandyGrid.grid[candy.gridY][i]
-                    removeCandyByStriped(candy, c, 30 * (candy.gridX - i + 1))
-                }
-                for (let i = candy.gridX + 1; i < CandyGrid.grid[candy.gridY].length; i++) {
-                    const c = CandyGrid.grid[candy.gridY][i]
-                    removeCandyByStriped(candy, c, 30 * (i + 1 - candy.gridX))
-                }
-                ScoreManager.addScore(8)
-            } else if (candy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED) {
-                this.scene.cameras.main.shake(100, 0.02)
-
-                for (let i = candy.gridY; i >= 0; i--) {
-                    const c = CandyGrid.grid[i][candy.gridX]
-                    removeCandyByStriped(candy, c, 30 * (candy.gridY - i + 1))
-                }
-
-                for (let i = candy.gridY + 1; i < CandyGrid.grid.length; i++) {
-                    const c = CandyGrid.grid[i][candy.gridX]
-                    removeCandyByStriped(candy, c, 30 * (i + 1 - candy.gridY))
-                }
-                ScoreManager.addScore(8)
-            } else if (candy.getSpecialType() === SPECIAL_TYPE.WRAPPED) {
-                this.scene.cameras.main.shake(100, 0.02)
-                ParticleManager.playWrappedExplode(
-                    candy.x,
-                    candy.y,
-                    CANDY_COLORS[candy.getCandyType()]
-                )
-                const neighborCandies = CandyGrid.getNeighborCandies(candy)
-                for (const neighborCandy of neighborCandies) {
-                    if (neighborCandy.getSpecialType() === SPECIAL_TYPE.NONE) {
-                        candiesToRemove.delete(neighborCandy)
-                        this.removeCandy(neighborCandy, 0)
-                    } else if (neighborCandy.getSpecialType() === SPECIAL_TYPE.COLOR_BOMB) {
-                        removeDelay = this.removeColorCandyByColorBomb(
-                            neighborCandy,
-                            candy.getCandyType(),
-                            removeDelay
-                        )
-                        candiesToRemove.delete(neighborCandy)
-                        this.removeCandy(neighborCandy, removeDelay)
-                    } else {
-                        candiesToRemove.add(neighborCandy)
-                    }
-                }
-                ScoreManager.addScore(neighborCandies.length)
-            }
-        }
-
-        this.scene.time.delayedCall(removeDelay + 50, () => {
+        this.scene.time.delayedCall(o.removeDelay + 50, () => {
             BoardStateMachine.getInstance().updateState(BoardState.FILL)
-            ScoreManager.addScore(candiesToRemove.size)
+            ScoreManager.addScore(o.candiesToRemove.size)
             // Loop through all the matches and remove the associated candies
-            for (const candy of candiesToRemove) {
+            for (const candy of o.candiesToRemove) {
                 if (candy && CandyGrid.grid[candy.gridY][candy.gridX]) {
                     this.removeCandy(candy)
                 }
