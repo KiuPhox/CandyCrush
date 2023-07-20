@@ -79,6 +79,13 @@ export default class Candy extends Phaser.GameObjects.Sprite {
         }
     }
 
+    public get isStriped(): boolean {
+        return (
+            this.specialType === SPECIAL_TYPE.HORIZONTAL_STRIPED ||
+            this.specialType === SPECIAL_TYPE.VERTICAL_STRIPED
+        )
+    }
+
     destroy(fromScene?: boolean | undefined): void {
         this.playExplodeEffect()
         super.destroy(fromScene)
