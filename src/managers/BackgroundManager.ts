@@ -8,12 +8,10 @@ class BackgroundManager {
 
     public static init(scene: GameScene): void {
         this.scene = scene
-
         this.background1 = scene.add
             .image(scene.scale.width / 2, scene.scale.height / 2, `bg-${Random.Int(1, 14)}`)
             .setDepth(-1)
         this.background1.setScale(scene.scale.height / this.background1.displayHeight)
-
         this.background2 = scene.add
             .image(scene.scale.width / 2, scene.scale.height / 2, `bg-${Random.Int(1, 14)}`)
             .setDepth(-1)
@@ -22,7 +20,6 @@ class BackgroundManager {
 
     public static changeBackground(): void {
         const bgTextureKey = this.background1.texture.key
-
         this.scene.add.tween({
             targets: this.background2,
             alpha: 0,

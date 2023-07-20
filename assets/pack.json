@@ -3,131 +3,6 @@
         "files": [
             {
                 "type": "image",
-                "key": "blue",
-                "url": "./assets/images/blue.png"
-            },
-            {
-                "type": "image",
-                "key": "green",
-                "url": "./assets/images/green.png"
-            },
-            {
-                "type": "image",
-                "key": "orange",
-                "url": "./assets/images/orange.png"
-            },
-            {
-                "type": "image",
-                "key": "purple",
-                "url": "./assets/images/purple.png"
-            },
-            {
-                "type": "image",
-                "key": "red",
-                "url": "./assets/images/red.png"
-            },
-            {
-                "type": "image",
-                "key": "yellow",
-                "url": "./assets/images/yellow.png"
-            },
-            {
-                "type": "image",
-                "key": "blue-wrapped",
-                "url": "./assets/images/blue-wrapped.png"
-            },
-            {
-                "type": "image",
-                "key": "green-wrapped",
-                "url": "./assets/images/green-wrapped.png"
-            },
-            {
-                "type": "image",
-                "key": "orange-wrapped",
-                "url": "./assets/images/orange-wrapped.png"
-            },
-            {
-                "type": "image",
-                "key": "purple-wrapped",
-                "url": "./assets/images/purple-wrapped.png"
-            },
-            {
-                "type": "image",
-                "key": "red-wrapped",
-                "url": "./assets/images/red-wrapped.png"
-            },
-            {
-                "type": "image",
-                "key": "yellow-wrapped",
-                "url": "./assets/images/yellow-wrapped.png"
-            },
-            {
-                "type": "image",
-                "key": "blue-vertical-striped",
-                "url": "./assets/images/blue-vertical-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "green-vertical-striped",
-                "url": "./assets/images/green-vertical-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "orange-vertical-striped",
-                "url": "./assets/images/orange-vertical-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "purple-vertical-striped",
-                "url": "./assets/images/purple-vertical-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "red-vertical-striped",
-                "url": "./assets/images/red-vertical-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "yellow-vertical-striped",
-                "url": "./assets/images/yellow-vertical-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "blue-horizontal-striped",
-                "url": "./assets/images/blue-horizontal-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "green-horizontal-striped",
-                "url": "./assets/images/green-horizontal-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "orange-horizontal-striped",
-                "url": "./assets/images/orange-horizontal-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "purple-horizontal-striped",
-                "url": "./assets/images/purple-horizontal-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "red-horizontal-striped",
-                "url": "./assets/images/red-horizontal-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "yellow-horizontal-striped",
-                "url": "./assets/images/yellow-horizontal-striped.png"
-            },
-            {
-                "type": "image",
-                "key": "color",
-                "url": "./assets/images/color.png"
-            },
-            {
-                "type": "image",
                 "key": "particle-1",
                 "url": "./assets/images/particle-1.png"
             },
@@ -186,6 +61,12 @@
                 "key": "bananasp",
                 "textureURL": "./assets/fonts/bananasp.png",
                 "fontDataURL": "./assets/fonts/bananasp.xml"
+            },
+            {
+                "type": "atlas",
+                "key": "candies",
+                "textureURL": "./assets/images/candies.png",
+                "atlasURL": "./assets/images/candies.json"
             }
         ]
     }

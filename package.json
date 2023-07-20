@@ -54,7 +54,6 @@
         "workbox-webpack-plugin": "^6.4.2"
     },
     "dependencies": {
-        "phaser": "^3.60.0",
-        "phaser3-rex-plugins": "^1.60.2"
+        "phaser": "^3.60.0"
     }
 }

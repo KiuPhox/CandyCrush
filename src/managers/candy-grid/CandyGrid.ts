@@ -21,7 +21,6 @@ export class CandyGrid {
     private static candyLayer: Phaser.GameObjects.Layer
     private static candyMask: Phaser.Display.Masks.GeometryMask
     private static bigCandy: BigCandy
-
     public static grid: (Candy | undefined)[][]
     public static candyGridOffset: Phaser.Math.Vector2
 
@@ -169,7 +168,6 @@ export class CandyGrid {
         const candyType =
             _candyType ??
             GAME_CONFIG.candyTypes[Phaser.Math.RND.between(0, GAME_CONFIG.candyTypes.length - 1)]
-
         const specialType = _specialType ?? SPECIAL_TYPE.NONE
 
         // Return the created candy

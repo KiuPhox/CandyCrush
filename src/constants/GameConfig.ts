@@ -4,7 +4,7 @@ export const GAME_CONFIG = {
     score: 0,
     highscore: 0,
     gridWidth: 10,
-    gridHeight: 12,
+    gridHeight: 13,
     tileWidth: 64,
     tileHeight: 64,
     candyTypes: [

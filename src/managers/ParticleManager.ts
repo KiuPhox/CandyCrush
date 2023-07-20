@@ -48,7 +48,6 @@ class ParticleManager {
         const particle1Emitter = this.particleEmitters.get('broken-particle')
         const particle2Emitter = this.particleEmitters.get('twinkle')
         const particle3Emitter = this.particleEmitters.get('ring-impact')
-
         if (particle1Emitter && particle2Emitter && particle3Emitter) {
             particle1Emitter.particleTint = color
             particle3Emitter.particleTint = color

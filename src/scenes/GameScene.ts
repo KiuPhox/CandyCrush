@@ -116,7 +116,7 @@ export default class GameScene extends Phaser.Scene {
 
         if (hint) {
             hint.candies.forEach((h: Candy) => {
-                h.setBrightnessEffect(1, true)
+                //h.setBrightnessEffect(1, true)
             })
 
             this.hintTween = this.tweens.addCounter({
@@ -128,13 +128,13 @@ export default class GameScene extends Phaser.Scene {
                 onUpdate: (t) => {
                     hint.candies.forEach((h: Candy) => {
                         const sine = Phaser.Math.Easing.Sine.InOut(t.getValue())
-                        h.setBrightnessEffect(1 + sine * 1.5, true)
+                        //h.setBrightnessEffect(1 + sine * 1.5, true)
                         h.setScale(0.35 + sine * (0.35 - 0.38), 0.35 + sine * (0.35 - 0.32))
                     })
                 },
                 onStop: () => {
                     hint.candies.forEach((h: Candy) => {
-                        h.setBrightnessEffect(0, false)
+                        //h.setBrightnessEffect(0, false)
                         h.setScale(0.35)
                     })
                 },

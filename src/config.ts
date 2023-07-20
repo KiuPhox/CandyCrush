@@ -16,9 +16,8 @@ export const GameConfig: Phaser.Types.Core.GameConfig = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
 
-    type: Phaser.WEBGL,
+    type: Phaser.AUTO,
     parent: 'game',
     scene: [BootScene, GameScene],
     backgroundColor: '#de3412',
-    render: { pixelArt: false, antialias: true },
 }

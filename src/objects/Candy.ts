@@ -5,12 +5,11 @@ import ParticleManager from '../managers/ParticleManager'
 export default class Candy extends Phaser.GameObjects.Sprite {
     private candyType: CANDY_TYPE
     private specialType: SPECIAL_TYPE
-    private colorMatrix: Phaser.FX.ColorMatrix
     public gridX: number
     public gridY: number
 
     constructor(iCandy: ICandy) {
-        super(iCandy.scene, iCandy.x, iCandy.y, iCandy.candyType, iCandy.frame)
+        super(iCandy.scene, iCandy.x, iCandy.y, 'candies', iCandy.candyType)
         this.gridX = iCandy.gridX
         this.gridY = iCandy.gridY
         this.candyType = iCandy.candyType
@@ -18,11 +17,6 @@ export default class Candy extends Phaser.GameObjects.Sprite {
 
         this.setScale(0.35).setInteractive()
         this.scene.add.existing(this)
-
-        if (this.preFX) {
-            this.colorMatrix = this.preFX.addColorMatrix()
-            this.colorMatrix.active = false
-        }
     }
 
     private playExplodeEffect(): void {
@@ -46,19 +40,19 @@ export default class Candy extends Phaser.GameObjects.Sprite {
 
         switch (specialType) {
             case SPECIAL_TYPE.NONE:
-                this.setTexture(this.candyType)
+                this.setFrame(this.candyType)
                 break
             case SPECIAL_TYPE.VERTICAL_STRIPED:
-                this.setTexture(`${this.candyType}-${this.specialType}`)
+                this.setFrame(`${this.candyType}-${this.specialType}`)
                 break
             case SPECIAL_TYPE.HORIZONTAL_STRIPED:
-                this.setTexture(`${this.candyType}-${this.specialType}`)
+                this.setFrame(`${this.candyType}-${this.specialType}`)
                 break
             case SPECIAL_TYPE.WRAPPED:
-                this.setTexture(`${this.candyType}-${this.specialType}`)
+                this.setFrame(`${this.candyType}-${this.specialType}`)
                 break
             case SPECIAL_TYPE.COLOR_BOMB:
-                this.setTexture('color')
+                this.setFrame('color')
                 break
         }
     }
@@ -69,15 +63,19 @@ export default class Candy extends Phaser.GameObjects.Sprite {
 
     public setCandyType(candyType: CANDY_TYPE): void {
         this.candyType = candyType
-        this.setTexture(candyType)
+        this.setFrame(candyType)
     }
 
-    public setBrightnessEffect(value: number, active: boolean): void {
-        if (this.preFX) {
-            this.colorMatrix.brightness(value)
-            this.colorMatrix.active = active
-        }
-    }
+    // public setBrightnessEffect(value: number, active: boolean): void {
+    //     if (this.preFX) {
+    //         if (active) {
+    //             if (!this.colorMatrix) this.colorMatrix = this.preFX.addColorMatrix()
+    //             this.colorMatrix.brightness(value)
+    //         } else {
+    //             this.preFX.clear()
+    //         }
+    //     }
+    // }
 
     public get isStriped(): boolean {
         return (

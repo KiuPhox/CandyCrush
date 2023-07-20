@@ -8,5 +8,4 @@ export interface ICandy {
     gridY: number
     candyType: CANDY_TYPE
     specialType: SPECIAL_TYPE
-    frame?: string | number
 }
