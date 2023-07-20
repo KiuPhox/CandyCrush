@@ -6,11 +6,15 @@ class ProgressBar extends Phaser.GameObjects.Container {
     private currentProgress: number
     private particleEmitter: Phaser.GameObjects.Particles.ParticleEmitter
 
+    private progressBitmapText: Phaser.GameObjects.BitmapText
+
     constructor(scene: Phaser.Scene) {
         super(scene)
         scene.add.existing(this)
+
         this.createProgressbar()
         this.createParticleEmitter()
+        this.createProgressBitmapText()
 
         ScoreManager.emitter.on('score-updated', this.onScoreUpdated)
     }
@@ -47,17 +51,32 @@ class ProgressBar extends Phaser.GameObjects.Container {
         this.add(this.progressFill)
     }
 
-    public getProgress(): number {
-        return this.currentProgress
+    private createProgressBitmapText(): void {
+        this.progressBitmapText = this.scene.add
+            .bitmapText(0, 0, 'bananasp', '0%')
+            .setOrigin(0.5)
+            .setTint(0xf6c964, 0xf6c964, 0xe37e26, 0xe37e26)
+        this.progressBitmapText.postFX.addGlow(0x772d09)
+        this.add(this.progressBitmapText)
     }
 
     public updateProgress(progress: number): void {
-        if (progress / 2 <= 50) {
-            this.currentProgress = progress / 2
+        if (progress <= 100) {
+            this.scene.tweens.addCounter({
+                from: this.currentProgress,
+                to: progress,
+                duration: 300,
+                onUpdate: (tween: Phaser.Tweens.Tween) => {
+                    this.progressBitmapText.setText(tween.getValue().toFixed(2) + '%')
+                },
+            })
+
+            this.currentProgress = progress
+
             this.scene.add.tween({
                 targets: this.progressFill,
                 scaleX: progress / 2,
-                duration: 200,
+                duration: 300,
                 ease: 'Quad.out',
                 onUpdate: () => {
                     this.particleEmitter.setPosition(
