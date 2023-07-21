@@ -62,31 +62,31 @@ class ProgressBar extends Phaser.GameObjects.Container {
     }
 
     public updateProgress(progress: number): void {
-        if (progress <= 100) {
-            this.scene.tweens.addCounter({
-                from: this.currentProgress,
-                to: progress,
-                duration: 300,
-                onUpdate: (tween: Phaser.Tweens.Tween) => {
-                    this.progressBitmapText.setText(tween.getValue().toFixed(2) + '%')
-                },
-            })
+        progress = Math.min(progress, 100)
 
-            this.currentProgress = progress
+        this.scene.tweens.addCounter({
+            from: this.currentProgress,
+            to: progress,
+            duration: 300,
+            onUpdate: (tween: Phaser.Tweens.Tween) => {
+                this.progressBitmapText.setText(tween.getValue().toFixed(2) + '%')
+            },
+        })
 
-            this.scene.add.tween({
-                targets: this.progressFill,
-                scaleX: progress / 2,
-                duration: 300,
-                ease: 'Quad.out',
-                onUpdate: () => {
-                    this.particleEmitter.setPosition(
-                        this.progressFill.getRightCenter().x,
-                        this.progressFill.getRightCenter().y
-                    )
-                },
-            })
-        }
+        this.currentProgress = progress
+
+        this.scene.add.tween({
+            targets: this.progressFill,
+            scaleX: progress / 2,
+            duration: 300,
+            ease: 'Quad.out',
+            onUpdate: () => {
+                this.particleEmitter.setPosition(
+                    this.progressFill.getRightCenter().x,
+                    this.progressFill.getRightCenter().y
+                )
+            },
+        })
     }
 
     private onScoreUpdated = (currentScore: number, maxScore: number) => {

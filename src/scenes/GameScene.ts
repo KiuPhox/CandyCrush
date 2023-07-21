@@ -116,7 +116,7 @@ export default class GameScene extends Phaser.Scene {
 
         if (hint) {
             hint.candies.forEach((h: Candy) => {
-                h.setBrightnessEffect(1, true)
+                h.setBrightnessEffect(0, true)
             })
 
             this.hintTween = this.tweens.addCounter({
@@ -153,6 +153,12 @@ export default class GameScene extends Phaser.Scene {
                 this.tryGetHint()
                 break
             case BoardState.FILL:
+                break
+            case BoardState.LEVEL_CLEAR:
+                if (this.hintTween && !this.hintTween.isDestroyed()) {
+                    this.hintTween.stop()
+                    this.hintTween.destroy()
+                }
                 break
         }
     }
