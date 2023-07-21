@@ -55,7 +55,6 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
             scale: { start: 0, end: 1, ease: 'Quart.out' },
             duration: 300,
             blendMode: BlendModes.ADD,
-            stopAfter: 1,
         },
     },
     {
@@ -67,7 +66,6 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
             alpha: { start: 0, end: 1, ease: 'Quad.out' },
             scale: 2,
             blendMode: BlendModes.ADD,
-            stopAfter: 1,
         },
     },
     {
@@ -79,7 +77,6 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
             alpha: { start: 1, end: 0, ease: 'Quirt.in' },
             scale: { start: 0, end: 4, ease: 'Cubic.out' },
             blendMode: BlendModes.ADD,
-            stopAfter: 1,
         },
     },
     {
@@ -91,7 +88,6 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
             alpha: { start: 1, end: 0, ease: 'Quirt.in' },
             scale: { start: 0, end: 8, ease: 'Cubic.out' },
             blendMode: BlendModes.ADD,
-            stopAfter: 1,
         },
     },
     {

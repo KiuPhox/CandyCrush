@@ -5,6 +5,8 @@ import ParticleManager from '../managers/ParticleManager'
 export default class Candy extends Phaser.GameObjects.Sprite {
     private candyType: CANDY_TYPE
     private specialType: SPECIAL_TYPE
+    private brightnessImage: Phaser.GameObjects.Image
+
     public gridX: number
     public gridY: number
 
@@ -66,16 +68,22 @@ export default class Candy extends Phaser.GameObjects.Sprite {
         this.setFrame(candyType)
     }
 
-    // public setBrightnessEffect(value: number, active: boolean): void {
-    //     if (this.preFX) {
-    //         if (active) {
-    //             if (!this.colorMatrix) this.colorMatrix = this.preFX.addColorMatrix()
-    //             this.colorMatrix.brightness(value)
-    //         } else {
-    //             this.preFX.clear()
-    //         }
-    //     }
-    // }
+    public setBrightnessEffect(value: number, active: boolean): void {
+        if (active) {
+            if (!this.brightnessImage)
+                this.brightnessImage = this.scene.add
+                    .image(this.x, this.y, 'candies', this.frame.name)
+                    .setScale(0.35)
+                    .setTintFill(0xffffff)
+            this.brightnessImage
+                .setPosition(this.x, this.y)
+                .setAlpha(value)
+                .setScale(this.scaleX, this.scaleY)
+                .setVisible(true)
+        } else {
+            this.brightnessImage.setVisible(false)
+        }
+    }
 
     public get isStriped(): boolean {
         return (
@@ -86,6 +94,7 @@ export default class Candy extends Phaser.GameObjects.Sprite {
 
     destroy(fromScene?: boolean | undefined): void {
         this.playExplodeEffect()
+        if (this.brightnessImage) this.brightnessImage.destroy()
         super.destroy(fromScene)
     }
 }
