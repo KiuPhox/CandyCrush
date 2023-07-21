@@ -96,6 +96,15 @@ class ParticleManager {
         }
     }
 
+    public static playBigCandyExplode(x: number, y: number, color: number): void {
+        const particleEmitter = this.particleEmitters.get('big-candy-shockwave')
+
+        if (particleEmitter) {
+            particleEmitter.particleTint = color
+            particleEmitter.emitParticleAt(x, y)
+        }
+    }
+
     public static playConfettiEffect() {
         const leftConfetti = this.particleEmitters.get('left-confetti')
         const rightConfetti = this.particleEmitters.get('right-confetti')

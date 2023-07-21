@@ -73,7 +73,7 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
         config: {
             lifespan: 500,
             duration: 300,
-            alpha: { start: 1, end: 0, ease: 'Quirt.in' },
+            alpha: { start: 1, end: 0, ease: 'Quint.in' },
             scale: { start: 0, end: 4, ease: 'Cubic.out' },
             blendMode: BlendModes.ADD,
         },
@@ -84,7 +84,18 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
         config: {
             lifespan: 500,
             duration: 300,
-            alpha: { start: 1, end: 0, ease: 'Quirt.in' },
+            alpha: { start: 1, end: 0, ease: 'Quint.in' },
+            scale: { start: 0, end: 8, ease: 'Cubic.out' },
+            blendMode: BlendModes.ADD,
+        },
+    },
+    {
+        key: 'big-candy-shockwave',
+        texture: 'particle-6',
+        config: {
+            lifespan: 500,
+            duration: 300,
+            alpha: { start: 1, end: 0, ease: 'Quint.in' },
             scale: { start: 0, end: 8, ease: 'Cubic.out' },
             blendMode: BlendModes.ADD,
         },

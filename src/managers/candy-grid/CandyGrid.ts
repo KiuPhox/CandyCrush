@@ -413,6 +413,7 @@ class CandyGrid {
 
                 const offsets = [-1, 0, 1]
                 const { x, y } = this.getCandyWorldPos(firstCandy)
+                ParticleManager.playBigCandyExplode(x, y, CANDY_COLORS[firstCandy.getCandyType()])
                 this.bigCandy.show(
                     x,
                     y,
@@ -454,6 +455,11 @@ class CandyGrid {
                         this.scene.tweens.addCounter({
                             duration: 500,
                             onComplete: () => {
+                                ParticleManager.playBigCandyExplode(
+                                    x,
+                                    y,
+                                    CANDY_COLORS[firstCandy.getCandyType()]
+                                )
                                 this.bigCandy.show(
                                     x,
                                     y,
