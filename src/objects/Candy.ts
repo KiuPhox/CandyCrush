@@ -1,6 +1,7 @@
 import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../constants/CandyConstant'
 import { ICandy } from '../types/tile'
 import ParticleManager from '../managers/ParticleManager'
+import ScoreManager from '../managers/ScoreManager'
 
 export default class Candy extends Phaser.GameObjects.Sprite {
     private candyType: CANDY_TYPE
@@ -99,6 +100,7 @@ export default class Candy extends Phaser.GameObjects.Sprite {
     destroy(fromScene?: boolean | undefined): void {
         this.playExplodeEffect()
         if (this.brightnessImage) this.brightnessImage.destroy()
+        ScoreManager.addScore(1)
         super.destroy(fromScene)
     }
 }

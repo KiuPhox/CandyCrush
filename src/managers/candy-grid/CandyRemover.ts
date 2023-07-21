@@ -2,7 +2,6 @@ import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
 import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../../constants/CandyConstant'
 import Lightning from '../../objects/Lightning'
-import ScoreManager from '../ScoreManager'
 import ParticleManager from '../ParticleManager'
 import { IMatch } from '../../types/match'
 import { Random } from '../../utils/Random'
@@ -47,7 +46,6 @@ class CandyRemover {
                         this.removeCandy(candy)
                     })
                 }
-                ScoreManager.addScore(1)
             }
         }
         return delay
@@ -124,7 +122,6 @@ class CandyRemover {
                     const c = CandyGrid.grid[candy.gridY][i]
                     this.removeCandyByStriped(candy, c, 30 * (i + 1 - candy.gridX), o)
                 }
-                ScoreManager.addScore(8)
             } else if (candy.getSpecialType() === SPECIAL_TYPE.VERTICAL_STRIPED) {
                 this.scene.cameras.main.shake(100, 0.02)
 
@@ -137,7 +134,6 @@ class CandyRemover {
                     const c = CandyGrid.grid[i][candy.gridX]
                     this.removeCandyByStriped(candy, c, 30 * (i + 1 - candy.gridY), o)
                 }
-                ScoreManager.addScore(8)
             } else if (candy.getSpecialType() === SPECIAL_TYPE.WRAPPED) {
                 this.scene.cameras.main.shake(100, 0.02)
                 ParticleManager.playWrappedExplode(
@@ -163,7 +159,6 @@ class CandyRemover {
                     }
                 }
                 this.removeCandy(candy)
-                ScoreManager.addScore(neighborCandies.length)
             }
         }
     }
@@ -271,7 +266,6 @@ class CandyRemover {
 
         this.scene.time.delayedCall(o.removeDelay + 50, () => {
             BoardManager.updateState(BoardState.FILL)
-            ScoreManager.addScore(o.candiesToRemove.size)
             // Loop through all the matches and remove the associated candies
             for (const candy of o.candiesToRemove) {
                 if (candy && CandyGrid.grid[candy.gridY][candy.gridX]) {

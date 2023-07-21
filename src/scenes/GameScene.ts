@@ -153,7 +153,11 @@ class GameScene extends Phaser.Scene {
             case BoardState.IDLE:
                 this.tryGetHint()
                 break
-            case BoardState.FILL:
+            case BoardState.SWAP:
+                if (this.hintTween && !this.hintTween.isDestroyed()) {
+                    this.hintTween.stop()
+                    this.hintTween.destroy()
+                }
                 break
             case BoardState.LEVEL_CLEAR:
                 if (this.hintTween && !this.hintTween.isDestroyed()) {

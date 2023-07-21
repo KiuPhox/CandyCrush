@@ -8,7 +8,6 @@ import { Random } from '../../utils/Random'
 import { IMatch } from '../../types/match'
 import CandyMatcher from './CandyMatcher'
 import CandySwapper from './CandySwapper'
-import ScoreManager from '../ScoreManager'
 import CandyRemover from './CandyRemover'
 import CandyShuffle from './CandyShuffle'
 import CandySelector from './CandySelector'
@@ -290,7 +289,6 @@ class CandyGrid {
                                 delay = Math.max(delay, (j + 1) * 100 + 200)
                                 CandyRemover.lightningCandy(bombCandy, candy, j * 100, () => {
                                     CandyRemover.removeCandy(candy)
-                                    ScoreManager.addScore(1)
                                 })
                             }
                         }
@@ -305,7 +303,6 @@ class CandyGrid {
                                     (this.grid[i].length - j - 1) * 100,
                                     () => {
                                         CandyRemover.removeCandy(candy)
-                                        ScoreManager.addScore(1)
                                     }
                                 )
                             }
@@ -394,7 +391,6 @@ class CandyGrid {
                 }
 
                 CandyRemover.processCandiesToRemove(o)
-                ScoreManager.addScore(neighborCandies.length)
 
                 this.scene.tweens.addCounter({
                     duration: o.removeDelay,
@@ -450,7 +446,6 @@ class CandyGrid {
                                 )
                             }
                             CandyRemover.processCandiesToRemove(o)
-                            ScoreManager.addScore(8)
                         }
 
                         this.scene.tweens.addCounter({
@@ -501,7 +496,6 @@ class CandyGrid {
                                                 )
                                             }
                                             CandyRemover.processCandiesToRemove(o)
-                                            ScoreManager.addScore(8)
                                         }
 
                                         this.scene.tweens.addCounter({

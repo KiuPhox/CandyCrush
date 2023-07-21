@@ -53,7 +53,7 @@ class ProgressBar extends Phaser.GameObjects.Container {
 
     private createProgressBitmapText(): void {
         this.progressBitmapText = this.scene.add
-            .bitmapText(0, 0, 'bananasp', '0%')
+            .bitmapText(0, -10, 'bananasp', '0%')
             .setOrigin(0.5)
             .setTint(0xf6c964, 0xf6c964, 0xe37e26, 0xe37e26)
             .setDropShadow(10, 10, 0x000000, 0.1)
