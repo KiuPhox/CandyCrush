@@ -264,14 +264,15 @@ class CandyRemover {
 
         this.processCandiesToRemove(o)
 
+        // Loop through all the matches and remove the associated candies
+        for (const candy of o.candiesToRemove) {
+            if (candy && CandyGrid.grid[candy.gridY][candy.gridX]) {
+                this.removeCandy(candy)
+            }
+        }
+
         this.scene.time.delayedCall(o.removeDelay + 50, () => {
             BoardManager.updateState(BoardState.FILL)
-            // Loop through all the matches and remove the associated candies
-            for (const candy of o.candiesToRemove) {
-                if (candy && CandyGrid.grid[candy.gridY][candy.gridX]) {
-                    this.removeCandy(candy)
-                }
-            }
 
             CandyGrid.resetCandy()
             CandyGrid.fillCandy().then(() => {

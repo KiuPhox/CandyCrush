@@ -59,13 +59,13 @@ class CandySwapper {
         this.swapCandiesInternal(a, b)
         // Move them on the screen with tweens
 
-        this.swapEffects[0].setPosition(firstCandy.x, firstCandy.y).setScale(1).setAlpha(1)
-        this.swapEffects[1].setPosition(secondCandy.x, secondCandy.y).setScale(1).setAlpha(1)
+        this.swapEffects[0].setPosition(firstCandy.x, firstCandy.y)
+        this.swapEffects[1].setPosition(secondCandy.x, secondCandy.y)
 
         this.scene.add.tween({
             targets: this.swapEffects,
-            scale: 0,
-            alpha: 0,
+            scale: { from: 1, to: 0 },
+            alpha: { from: 1, to: 0 },
             duration: 200,
             ease: 'Quad.in',
         })

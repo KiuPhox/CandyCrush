@@ -9,7 +9,7 @@ import CandyGrid from './CandyGrid'
 
 const ROTATE_TWEEN_DUR = 2000
 const MOVE_TWEEN_DUR = 500
-const MOVE_TWEEN_DELAY = 500
+const MOVE_TWEEN_DELAY = 50
 
 const DEGREE_ANGLE_OFFSETS = [0, 0, 0, 30, 0, -18, 0, 12.85714286, 0, 0, 0, 0]
 
@@ -52,7 +52,6 @@ class CandyShuffle {
 
         for (let i = 0; i < numVertices; i++) {
             const x = circleRadius * Math.cos(i * angleIncrement + angleOffset)
-
             const y = circleRadius * Math.sin(i * angleIncrement + angleOffset)
 
             vertices.push(new Phaser.Math.Vector2(x + circleCenter.x, y + circleCenter.y))

@@ -147,11 +147,18 @@ class CandyGrid {
                 if (candy) {
                     this.scene.add.tween({
                         targets: candy,
-                        y: CandyGrid.getCandyWorldPos(candy).y - 20,
+                        y: candy.y - 20,
                         duration: 200,
                         delay: (i + j) * 100,
                         ease: 'Quad.out',
-                        yoyo: true,
+                        onComplete: () => {
+                            this.scene.add.tween({
+                                targets: candy,
+                                y: CandyGrid.getCandyWorldPos(candy).y,
+                                duration: 200,
+                                ease: 'Quad.out',
+                            })
+                        },
                     })
                 }
             }
@@ -318,11 +325,7 @@ class CandyGrid {
                     for (let i = 0; i < this.grid.length; i++) {
                         for (let j = 0; j < this.grid[i].length; j++) {
                             const candy = this.grid[i][j]
-                            if (
-                                candy &&
-                                candy.getCandyType() === otherCandy.getCandyType() &&
-                                candy.getSpecialType() === SPECIAL_TYPE.NONE
-                            ) {
+                            if (candy && candy.getCandyType() === otherCandy.getCandyType()) {
                                 delay = Math.max(delay, (j + 1) * 100 + 200)
                                 const specialType = isWrapped
                                     ? SPECIAL_TYPE.WRAPPED
