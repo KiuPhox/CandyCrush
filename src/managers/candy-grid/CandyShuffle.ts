@@ -98,7 +98,7 @@ class CandyShuffle {
             })
         }
 
-        return MOVE_TWEEN_DUR + ROTATE_TWEEN_DUR + MOVE_TWEEN_DUR + MOVE_TWEEN_DELAY
+        return MOVE_TWEEN_DUR + ROTATE_TWEEN_DUR + MOVE_TWEEN_DUR + MOVE_TWEEN_DELAY + 100
     }
 }
 

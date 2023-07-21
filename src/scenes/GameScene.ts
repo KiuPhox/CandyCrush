@@ -112,7 +112,7 @@ export default class GameScene extends Phaser.Scene {
             this.hintTween.destroy()
         }
 
-        const hint = CandyGrid.getHints()[0]
+        const hint = CandyGrid.getHint()
 
         if (hint) {
             hint.candies.forEach((h: Candy) => {

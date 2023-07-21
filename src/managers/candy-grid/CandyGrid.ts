@@ -523,7 +523,9 @@ export class CandyGrid {
         })
     }
 
-    public static getHints(): IMatch[] {
+    public static getHint(): IMatch | null {
+        let resolves: IMatch[] = []
+
         for (let y = 0; y < this.grid.length; y++) {
             for (let x = 0; x < this.grid[y].length - 1; x++) {
                 // Swap candies and check for matches
@@ -535,11 +537,11 @@ export class CandyGrid {
                 // If matches are found, this is a valid hint
                 if (matches.length > 0) {
                     CandySwapper.swapCandiesInternal(a, b) // Swap back to original positions
-                    return matches
+                    resolves.push(...matches)
                 }
 
                 // Swap candies back to original positions
-                CandySwapper.swapCandiesInternal(a, b)
+                else CandySwapper.swapCandiesInternal(a, b)
             }
         }
 
@@ -555,14 +557,23 @@ export class CandyGrid {
                 // If matches are found, this is a valid hint
                 if (matches.length > 0) {
                     CandySwapper.swapCandiesInternal(a, b) // Swap back to original positions
-                    return matches
+                    resolves.push(...matches)
                 }
 
                 // Swap candies back to original positions
-                CandySwapper.swapCandiesInternal(a, b)
+                else CandySwapper.swapCandiesInternal(a, b)
             }
         }
-        return []
+
+        resolves = Random.shuffleArray(resolves)
+
+        for (let i = 5; i >= 3; i--) {
+            for (const resolve of resolves) {
+                if (resolve.candies.length === i) return resolve
+            }
+        }
+
+        return null
     }
 
     public static getNeighborCandies(candy: Candy, distance: number): Candy[] {

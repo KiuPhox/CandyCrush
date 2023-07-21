@@ -94,8 +94,8 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
         key: 'left-confetti',
         texture: 'square',
         config: {
-            scaleY: { start: 1, end: 1 },
             lifespan: 5000,
+            scaleY: { start: 0.2, end: 1, random: true },
             alpha: { start: 1, end: 0, ease: 'Quart.in' },
             rotate: { start: 0, end: -3000, random: true },
             speedX: { min: 500, max: 2000 },
@@ -108,7 +108,7 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
         key: 'right-confetti',
         texture: 'square',
         config: {
-            scaleY: { start: 1, end: 1 },
+            scaleY: { start: 0.2, end: 1, random: true },
             lifespan: 5000,
             alpha: { start: 1, end: 0, ease: 'Quart.in' },
             rotate: { start: 0, end: 3000, random: true },

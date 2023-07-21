@@ -66,15 +66,17 @@ export default class Candy extends Phaser.GameObjects.Sprite {
     public setCandyType(candyType: CANDY_TYPE): void {
         this.candyType = candyType
         this.setFrame(candyType)
+        if (this.brightnessImage) this.setFrame(candyType)
     }
 
     public setBrightnessEffect(value: number, active: boolean): void {
         if (active) {
             if (!this.brightnessImage)
                 this.brightnessImage = this.scene.add
-                    .image(this.x, this.y, 'candies', this.frame.name)
+                    .image(this.x, this.y, 'candies', this.candyType)
                     .setScale(0.35)
                     .setTintFill(0xffffff)
+
             this.brightnessImage
                 .setPosition(this.x, this.y)
                 .setAlpha(value)
