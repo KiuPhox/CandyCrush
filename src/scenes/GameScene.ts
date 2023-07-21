@@ -1,7 +1,7 @@
 import { BoardState } from '../constants/BoardState'
 import { GAME_CONFIG } from '../constants/GameConfig'
 import BackgroundManager from '../managers/BackgroundManager'
-import BoardStateMachine from '../managers/BoardStateMachine'
+import BoardManager from '../managers/BoardManager'
 import CandyGrid from '../managers/candy-grid/CandyGrid'
 import CandyMatcher from '../managers/candy-grid/CandyMatcher'
 import CandyRemover from '../managers/candy-grid/CandyRemover'
@@ -11,7 +11,7 @@ import ScoreManager from '../managers/ScoreManager'
 import Candy from '../objects/Candy'
 import ProgressBar from './screens/ProgressBar'
 
-export default class GameScene extends Phaser.Scene {
+class GameScene extends Phaser.Scene {
     private hintTween: Phaser.Tweens.Tween
     private idleTimer: number
     private levelClear: boolean
@@ -27,6 +27,7 @@ export default class GameScene extends Phaser.Scene {
         ParticleManager.init(this)
         CandyGrid.init(this)
         ScoreManager.init()
+        BoardManager.init()
     }
 
     create(): void {
@@ -53,7 +54,7 @@ export default class GameScene extends Phaser.Scene {
             console.log('Debugging: ' + this.debug)
         })
 
-        BoardStateMachine.getInstance().emitter.on('board-state-changed', this.onBoardStateChanged)
+        BoardManager.emitter.on('board-state-changed', this.onBoardStateChanged)
         ScoreManager.emitter.on('score-reached-max', this.onScoreReachedMax)
     }
 
@@ -74,7 +75,7 @@ export default class GameScene extends Phaser.Scene {
 
         //If there are matches, remove them
         if (matches.length > 0) {
-            BoardStateMachine.getInstance().updateState(BoardState.MATCH)
+            BoardManager.updateState(BoardState.MATCH)
             //Remove the tiles
             CandyRemover.removeCandyGroup(matches)
         } else if (this.levelClear) {
@@ -96,7 +97,7 @@ export default class GameScene extends Phaser.Scene {
             this.tweens.addCounter({
                 duration: 200,
                 onComplete: () => {
-                    BoardStateMachine.getInstance().updateState(BoardState.IDLE)
+                    BoardManager.updateState(BoardState.IDLE)
                 },
             })
         }
@@ -106,7 +107,7 @@ export default class GameScene extends Phaser.Scene {
         if (
             this.hintTween &&
             !this.hintTween.isDestroyed() &&
-            BoardStateMachine.getInstance().getCurrentState() !== BoardState.SWAP
+            BoardManager.getCurrentState() !== BoardState.SWAP
         ) {
             this.hintTween.stop()
             this.hintTween.destroy()
@@ -169,7 +170,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update(time: number, delta: number): void {
-        if (BoardStateMachine.getInstance().getCurrentState() === BoardState.IDLE) {
+        if (BoardManager.getCurrentState() === BoardState.IDLE) {
             this.idleTimer -= delta
             if (this.idleTimer <= 0) {
                 this.idleTimer = 3000
@@ -180,3 +181,5 @@ export default class GameScene extends Phaser.Scene {
         }
     }
 }
+
+export default GameScene

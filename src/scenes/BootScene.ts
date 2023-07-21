@@ -1,4 +1,4 @@
-export default class BootScene extends Phaser.Scene {
+class BootScene extends Phaser.Scene {
     private loadingBar: Phaser.GameObjects.Graphics
     private progressBar: Phaser.GameObjects.Graphics
 
@@ -67,3 +67,5 @@ export default class BootScene extends Phaser.Scene {
         this.progressBar = this.add.graphics()
     }
 }
+
+export default BootScene

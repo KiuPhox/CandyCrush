@@ -3,7 +3,7 @@ import { GAME_CONFIG } from '../../constants/GameConfig'
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
 import { BoardState } from '../../constants/BoardState'
-import BoardStateMachine from '../BoardStateMachine'
+import BoardManager from '../BoardManager'
 import { Random } from '../../utils/Random'
 import { IMatch } from '../../types/match'
 import CandyMatcher from './CandyMatcher'
@@ -16,7 +16,7 @@ import BigCandy from '../../objects/BigCandy'
 import { CandyRemoveSet } from '../../types/general'
 import ParticleManager from '../ParticleManager'
 
-export class CandyGrid {
+class CandyGrid {
     private static scene: GameScene
     private static candyLayer: Phaser.GameObjects.Layer
     private static candyMask: Phaser.Display.Masks.GeometryMask
@@ -264,7 +264,7 @@ export class CandyGrid {
     ): void {
         if (!firstCandy || !secondCandy) return
         // Get the position of the two candies
-        BoardStateMachine.getInstance().updateState(BoardState.SWAP)
+        BoardManager.updateState(BoardState.SWAP)
 
         CandySwapper.swapCandies(firstCandy, secondCandy, () => {
             if (

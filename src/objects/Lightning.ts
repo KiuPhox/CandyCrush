@@ -1,6 +1,6 @@
 import { BlendModes } from 'phaser'
 
-export class Lightning extends Phaser.GameObjects.Rope {
+class Lightning extends Phaser.GameObjects.Rope {
     constructor(scene: Phaser.Scene) {
         super(scene, 0, 0, 'lightning')
         scene.add.existing(this)
@@ -13,3 +13,5 @@ export class Lightning extends Phaser.GameObjects.Rope {
         this.points[this.points.length - 1] = pointB
     }
 }
+
+export default Lightning

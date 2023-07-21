@@ -1,18 +1,18 @@
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
 import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../../constants/CandyConstant'
-import { Lightning } from '../../objects/Lightning'
+import Lightning from '../../objects/Lightning'
 import ScoreManager from '../ScoreManager'
 import ParticleManager from '../ParticleManager'
 import { IMatch } from '../../types/match'
 import { Random } from '../../utils/Random'
-import BoardStateMachine from '../BoardStateMachine'
+import BoardManager from '../BoardManager'
 import CandySelector from './CandySelector'
 import CandyGrid from './CandyGrid'
 import { BoardState } from '../../constants/BoardState'
 import { CandyRemoveSet } from '../../types/general'
 
-export class CandyRemover {
+class CandyRemover {
     private static scene: GameScene
 
     public static init(scene: GameScene): void {
@@ -270,7 +270,7 @@ export class CandyRemover {
         this.processCandiesToRemove(o)
 
         this.scene.time.delayedCall(o.removeDelay + 50, () => {
-            BoardStateMachine.getInstance().updateState(BoardState.FILL)
+            BoardManager.updateState(BoardState.FILL)
             ScoreManager.addScore(o.candiesToRemove.size)
             // Loop through all the matches and remove the associated candies
             for (const candy of o.candiesToRemove) {

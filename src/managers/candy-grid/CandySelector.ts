@@ -1,7 +1,7 @@
 import { BoardState } from '../../constants/BoardState'
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
-import BoardStateMachine from '../BoardStateMachine'
+import BoardManager from '../BoardManager'
 import CandyGrid from './CandyGrid'
 
 class CandySelector {
@@ -33,7 +33,7 @@ class CandySelector {
     }
 
     private static candyDown = (pointer: PointerEvent, gameobject: Candy | undefined) => {
-        if (BoardStateMachine.getInstance().getCurrentState() === BoardState.IDLE && gameobject) {
+        if (BoardManager.getCurrentState() === BoardState.IDLE && gameobject) {
             if (!this.firstSelectedCandy) {
                 this.firstSelectedCandy = gameobject
                 this.setFramePosition(this.firstSelectedCandy)
@@ -47,7 +47,7 @@ class CandySelector {
                 const dy = Math.abs(this.firstSelectedCandy.gridY - this.secondSelectedCandy.gridY)
 
                 if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
-                    BoardStateMachine.getInstance().updateState(BoardState.SWAP)
+                    BoardManager.updateState(BoardState.SWAP)
                     CandyGrid.trySwapCandies(this.firstSelectedCandy, this.secondSelectedCandy)
                 } else {
                     this.firstSelectedCandy = undefined

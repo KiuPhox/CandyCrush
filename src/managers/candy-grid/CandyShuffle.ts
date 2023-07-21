@@ -4,7 +4,7 @@ import { GAME_CONFIG } from '../../constants/GameConfig'
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
 import { Random } from '../../utils/Random'
-import BoardStateMachine from '../BoardStateMachine'
+import BoardManager from '../BoardManager'
 import CandyGrid from './CandyGrid'
 
 const ROTATE_TWEEN_DUR = 2000
@@ -62,7 +62,7 @@ class CandyShuffle {
     }
 
     public static shuffle(candies: Candy[], shuffle: boolean): number {
-        BoardStateMachine.getInstance().updateState(BoardState.CREATE)
+        BoardManager.updateState(BoardState.CREATE)
 
         candies = Random.shuffleArray(candies)
         const shape = this.shapes[Random.Int(0, this.shapes.length - 1)]

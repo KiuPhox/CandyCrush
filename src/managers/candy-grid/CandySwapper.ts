@@ -2,7 +2,7 @@ import CandyGrid from './CandyGrid'
 import { BoardState } from '../../constants/BoardState'
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
-import BoardStateMachine from '../BoardStateMachine'
+import BoardManager from '../BoardManager'
 import { BlendModes } from 'phaser'
 
 class CandySwapper {
@@ -49,7 +49,7 @@ class CandySwapper {
     }
 
     public static swapCandies(firstCandy: Candy, secondCandy: Candy, onComplete: () => void): void {
-        BoardStateMachine.getInstance().updateState(BoardState.SWAP)
+        BoardManager.updateState(BoardState.SWAP)
 
         const a = new Phaser.Math.Vector2(firstCandy.gridX, firstCandy.gridY)
         const b = new Phaser.Math.Vector2(secondCandy.gridX, secondCandy.gridY)
