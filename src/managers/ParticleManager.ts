@@ -1,6 +1,7 @@
 import { CANDY_COLORS, SPECIAL_TYPE } from '../constants/CandyConstant'
 import { PARTICLE_CONFIGS } from '../constants/ParticleConfigs'
 import ConfettiProcessor from '../objects/custom-particles/ConfettiProcessor'
+import StripedProcessor from '../objects/custom-particles/StripedProcessor'
 import GameScene from '../scenes/GameScene'
 import { Random } from '../utils/Random'
 
@@ -38,6 +39,8 @@ class ParticleManager {
                         dampingY: 0.99,
                     })
                 )
+            } else if (particleConfig.key === 'striped-line') {
+                particle.addParticleProcessor(new StripedProcessor())
             }
         })
 

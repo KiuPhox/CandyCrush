@@ -63,7 +63,7 @@ export const PARTICLE_CONFIGS: IParticleConfig[] = [
         config: {
             lifespan: 500,
             duration: 300,
-            alpha: { start: 0, end: 1, ease: 'Quad.out' },
+            //alpha: { start: 0, end: 1, ease: 'Quad.out' },
             scale: 2,
             blendMode: BlendModes.ADD,
         },
