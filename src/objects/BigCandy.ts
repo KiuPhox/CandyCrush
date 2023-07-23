@@ -1,5 +1,5 @@
 import { CANDY_TYPE, SPECIAL_TYPE } from '../constants/CandyConstant'
-import { ICandy } from '../types/tile'
+import { ICandy } from '../types/candy'
 import Candy from './Candy'
 
 class BigCandy extends Candy {

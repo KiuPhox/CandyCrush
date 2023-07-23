@@ -45,9 +45,9 @@ class BootScene extends Phaser.Scene {
             frameWidth: 288,
             frameHeight: 271,
         })
-        // Load background
+        // Load backgrounds
         for (let i = 1; i <= 14; i++) {
-            this.load.image(`bg-${i}`, `./assets/images/bg/bg-${i}.webp`)
+            this.load.image(`bg-${i}`, `./assets/images/backgrounds/bg-${i}.webp`)
         }
     }
 

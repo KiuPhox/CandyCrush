@@ -3,6 +3,7 @@ import { SPECIAL_TYPE } from '../../constants/CandyConstant'
 import { GAME_CONFIG } from '../../constants/GameConfig'
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
+import { Shape } from '../../types/shape'
 import { Random } from '../../utils/Random'
 import BoardManager from '../BoardManager'
 import CandyGrid from './CandyGrid'
@@ -16,9 +17,9 @@ const DEGREE_ANGLE_OFFSETS = [0, 0, 0, 30, 0, -18, 0, 12.85714286, 0, 0, 0, 0]
 class CandyShuffle {
     private static scene: GameScene
 
-    private static shapes: (Phaser.Geom.Polygon | Phaser.Geom.Circle)[]
+    private static shapes: Shape[]
 
-    public static init(scene: GameScene) {
+    public static init(scene: GameScene): void {
         this.scene = scene
         this.shapes = []
 

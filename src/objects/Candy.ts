@@ -1,5 +1,5 @@
 import { CANDY_COLORS, CANDY_TYPE, SPECIAL_TYPE } from '../constants/CandyConstant'
-import { ICandy } from '../types/tile'
+import { ICandy } from '../types/candy'
 import ParticleManager from '../managers/ParticleManager'
 import ScoreManager from '../managers/ScoreManager'
 

@@ -19,7 +19,7 @@ class ParticleManager {
 
     private static particleEmitters: Map<string, Phaser.GameObjects.Particles.ParticleEmitter>
 
-    public static init(scene: GameScene) {
+    public static init(scene: GameScene): void {
         this.scene = scene
         this.particleEmitters = new Map<string, Phaser.GameObjects.Particles.ParticleEmitter>()
 
@@ -105,7 +105,7 @@ class ParticleManager {
         }
     }
 
-    public static playConfettiEffect() {
+    public static playConfettiEffect(): void {
         const leftConfetti = this.particleEmitters.get('left-confetti')
         const rightConfetti = this.particleEmitters.get('right-confetti')
 

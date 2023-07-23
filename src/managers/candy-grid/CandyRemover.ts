@@ -287,7 +287,7 @@ class CandyRemover {
         target: Candy,
         delay: number,
         onLightningTouch?: () => void
-    ) {
+    ): void {
         const lightning = new Lightning(this.scene).setVisible(false)
         lightning.setLine(
             new Phaser.Math.Vector2(source.x, source.y),

@@ -1,13 +1,13 @@
 import { CANDY_TYPE } from '../../constants/CandyConstant'
-import Candy from '../../objects/Candy'
+import { Cell } from '../../types/candy'
 import { IMatch } from '../../types/match'
 
 class CandyMatcher {
     private static visited: boolean[][]
     private static matches: IMatch[]
-    private static grid: (Candy | undefined)[][]
+    private static grid: Cell[][]
 
-    public static init(grid: (Candy | undefined)[][]): void {
+    public static init(grid: Cell[][]): void {
         this.visited = []
         this.matches = []
         this.grid = grid
@@ -24,7 +24,7 @@ class CandyMatcher {
         return this.matches
     }
 
-    public static checkHorizontalMatches() {
+    public static checkHorizontalMatches(): void {
         for (let y = 0; y < this.grid.length; y++) {
             for (let x = 0; x < this.grid[y].length - 2; x++) {
                 const candy = this.grid[y][x]
@@ -82,7 +82,7 @@ class CandyMatcher {
         }
     }
 
-    public static markVisitedCandies(match: IMatch) {
+    public static markVisitedCandies(match: IMatch): void {
         match.candies.forEach((matchCandy) => {
             const candyY = matchCandy.gridY
             const candyX = matchCandy.gridX
@@ -92,7 +92,7 @@ class CandyMatcher {
         })
     }
 
-    public static initializeVisitedArray() {
+    public static initializeVisitedArray(): void {
         for (let y = 0; y < this.grid.length; y++) {
             this.visited[y] = []
             for (let x = 0; x < this.grid[y].length; x++) {

@@ -5,7 +5,7 @@ import GameScene from '../../scenes/GameScene'
 import { BoardState } from '../../constants/BoardState'
 import BoardManager from '../BoardManager'
 import { Random } from '../../utils/Random'
-import { IMatch } from '../../types/match'
+import { Hint, IMatch } from '../../types/match'
 import CandyMatcher from './CandyMatcher'
 import CandySwapper from './CandySwapper'
 import CandyRemover from './CandyRemover'
@@ -14,13 +14,14 @@ import CandySelector from './CandySelector'
 import BigCandy from '../../objects/BigCandy'
 import { CandyRemoveSet } from '../../types/general'
 import ParticleManager from '../ParticleManager'
+import { Cell } from '../../types/candy'
 
 class CandyGrid {
     private static scene: GameScene
     private static candyLayer: Phaser.GameObjects.Layer
     private static candyMask: Phaser.Display.Masks.GeometryMask
     private static bigCandy: BigCandy
-    public static grid: (Candy | undefined)[][]
+    public static grid: Cell[][]
     public static candyGridOffset: Phaser.Math.Vector2
 
     public static init(scene: GameScene): void {
@@ -108,7 +109,7 @@ class CandyGrid {
         })
     }
 
-    public static shuffle() {
+    public static shuffle(): void {
         const candies: Candy[] = []
         for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
             for (let x = 0; x < GAME_CONFIG.gridWidth; x++) {
@@ -127,17 +128,6 @@ class CandyGrid {
             this.candyLayer.setMask(this.candyMask)
             this.scene.checkMatches()
         })
-    }
-
-    public static clear(): void {
-        for (let y = 0; y < GAME_CONFIG.gridHeight; y++) {
-            for (let x = 0; x < GAME_CONFIG.gridWidth; x++) {
-                const candy = this.grid[y][x]
-                if (candy) {
-                    CandyRemover.removeCandy(candy)
-                }
-            }
-        }
     }
 
     public static playIdleEffect(): void {
@@ -264,10 +254,7 @@ class CandyGrid {
         }
     }
 
-    public static trySwapCandies(
-        firstCandy: Candy | undefined,
-        secondCandy: Candy | undefined
-    ): void {
+    public static trySwapCandies(firstCandy: Cell, secondCandy: Cell): void {
         if (!firstCandy || !secondCandy) return
         // Get the position of the two candies
         BoardManager.updateState(BoardState.SWAP)
@@ -526,7 +513,7 @@ class CandyGrid {
         })
     }
 
-    public static getHint(): IMatch | null {
+    public static getHint(): Hint {
         let resolves: IMatch[] = []
 
         for (let y = 0; y < this.grid.length; y++) {

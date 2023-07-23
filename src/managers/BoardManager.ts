@@ -6,7 +6,7 @@ class BoardManager {
 
     public static emitter: Phaser.Events.EventEmitter
 
-    public static init() {
+    public static init(): void {
         this.currentState = BoardState.CREATE
         this.previousState = BoardState.CREATE
         this.emitter = new Phaser.Events.EventEmitter()

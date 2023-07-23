@@ -168,7 +168,7 @@ class GameScene extends Phaser.Scene {
         }
     }
 
-    private onScoreReachedMax = (currentScore: number, maxScore: number) => {
+    private onScoreReachedMax = () => {
         ParticleManager.playConfettiEffect()
         this.levelClear = true
     }

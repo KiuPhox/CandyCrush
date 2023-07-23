@@ -9,7 +9,7 @@ class CandySwapper {
     private static scene: GameScene
     private static swapEffects: Phaser.GameObjects.Image[]
 
-    public static init(scene: GameScene) {
+    public static init(scene: GameScene): void {
         this.scene = scene
         this.swapEffects = []
 

@@ -4,7 +4,7 @@ class ScoreManager {
 
     public static emitter: Phaser.Events.EventEmitter
 
-    public static init() {
+    public static init(): void {
         this.currentScore = 0
         this.maxScore = 100
         this.emitter = new Phaser.Events.EventEmitter()

@@ -1,19 +1,17 @@
 import { BoardState } from '../../constants/BoardState'
 import Candy from '../../objects/Candy'
 import GameScene from '../../scenes/GameScene'
+import { Cell } from '../../types/candy'
 import BoardManager from '../BoardManager'
 import CandyGrid from './CandyGrid'
 
 class CandySelector {
-    private static scene: GameScene
-
-    public static firstSelectedCandy: Candy | undefined
-    public static secondSelectedCandy: Candy | undefined
+    public static firstSelectedCandy: Cell
+    public static secondSelectedCandy: Cell
 
     private static selectedFrame: Phaser.GameObjects.Image
 
-    public static init(scene: GameScene) {
-        this.scene = scene
+    public static init(scene: GameScene): void {
         this.firstSelectedCandy = undefined
         this.secondSelectedCandy = undefined
         this.selectedFrame = scene.add
@@ -32,7 +30,7 @@ class CandySelector {
         scene.input.on('gameobjectdown', this.candyDown, scene)
     }
 
-    private static candyDown = (pointer: PointerEvent, gameobject: Candy | undefined) => {
+    private static candyDown = (pointer: PointerEvent, gameobject: Cell) => {
         if (BoardManager.getCurrentState() === BoardState.IDLE && gameobject) {
             if (!this.firstSelectedCandy) {
                 this.firstSelectedCandy = gameobject
