@@ -80,12 +80,13 @@ class CandyShuffle {
                 duration: MOVE_TWEEN_DUR,
                 ease: 'Quad.out',
                 onComplete: () => {
-                    if (shuffle && candy.getSpecialType() !== SPECIAL_TYPE.COLOR_BOMB) {
+                    if (shuffle) {
                         candy.setCandyType(
                             GAME_CONFIG.candyTypes[
                                 Phaser.Math.RND.between(0, GAME_CONFIG.candyTypes.length - 1)
                             ]
                         )
+                        candy.setSpecialType(SPECIAL_TYPE.NONE)
                     }
 
                     this.scene.tweens.addCounter({

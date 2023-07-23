@@ -396,7 +396,10 @@ class CandyGrid {
                 CandyRemover.removeCandy(firstCandy)
                 CandyRemover.removeCandy(secondCandy)
 
-                const o: CandyRemoveSet = { removeDelay: 0, candiesToRemove: new Set<Candy>() }
+                const candyRemoveSet: CandyRemoveSet = {
+                    removeDelay: 0,
+                    candiesToRemove: new Set<Candy>(),
+                }
 
                 const offsets = [-1, 0, 1]
                 const { x, y } = this.getCandyWorldPos(firstCandy)
@@ -415,12 +418,12 @@ class CandyGrid {
                             if (gridY >= this.grid.length || gridY < 0) continue
 
                             for (let i = firstCandy.gridX; i >= 0; i--) {
-                                const c = CandyGrid.grid[gridY][i]
+                                const candy = CandyGrid.grid[gridY][i]
                                 CandyRemover.removeCandyByStriped(
                                     this.bigCandy,
-                                    c,
+                                    candy,
                                     30 * (firstCandy.gridX - i + 1),
-                                    o
+                                    candyRemoveSet
                                 )
                             }
                             for (
@@ -433,10 +436,10 @@ class CandyGrid {
                                     this.bigCandy,
                                     c,
                                     30 * (i + 1 - firstCandy.gridX),
-                                    o
+                                    candyRemoveSet
                                 )
                             }
-                            CandyRemover.processCandiesToRemove(o)
+                            CandyRemover.processCandiesToRemove(candyRemoveSet)
                         }
 
                         this.scene.tweens.addCounter({
@@ -462,15 +465,15 @@ class CandyGrid {
 
                                             for (let i = firstCandy.gridY; i >= 0; i--) {
                                                 const c = CandyGrid.grid[i][gridX]
-                                                o.removeDelay = Math.max(
-                                                    o.removeDelay,
+                                                candyRemoveSet.removeDelay = Math.max(
+                                                    candyRemoveSet.removeDelay,
                                                     30 * (firstCandy.gridY - i + 1)
                                                 )
                                                 CandyRemover.removeCandyByStriped(
                                                     this.bigCandy,
                                                     c,
                                                     30 * (firstCandy.gridY - i + 1),
-                                                    o
+                                                    candyRemoveSet
                                                 )
                                             }
 
@@ -480,22 +483,22 @@ class CandyGrid {
                                                 i++
                                             ) {
                                                 const c = CandyGrid.grid[i][gridX]
-                                                o.removeDelay = Math.max(
-                                                    o.removeDelay,
+                                                candyRemoveSet.removeDelay = Math.max(
+                                                    candyRemoveSet.removeDelay,
                                                     30 * (i + 1 - firstCandy.gridY)
                                                 )
                                                 CandyRemover.removeCandyByStriped(
                                                     this.bigCandy,
                                                     c,
                                                     30 * (i + 1 - firstCandy.gridY),
-                                                    o
+                                                    candyRemoveSet
                                                 )
                                             }
-                                            CandyRemover.processCandiesToRemove(o)
+                                            CandyRemover.processCandiesToRemove(candyRemoveSet)
                                         }
 
                                         this.scene.tweens.addCounter({
-                                            duration: o.removeDelay,
+                                            duration: candyRemoveSet.removeDelay,
                                             onComplete: () => {
                                                 const matches: IMatch[] = []
                                                 CandyRemover.removeCandyGroup(matches)
