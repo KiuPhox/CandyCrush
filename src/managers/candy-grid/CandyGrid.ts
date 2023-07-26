@@ -350,6 +350,7 @@ class CandyGrid {
                 firstCandy.getSpecialType() === SPECIAL_TYPE.WRAPPED &&
                 secondCandy.getSpecialType() === SPECIAL_TYPE.WRAPPED
             ) {
+                this.scene.cameras.main.shake(200, 0.02)
                 ParticleManager.playWrappedBigExplode(
                     firstCandy.x,
                     firstCandy.y,

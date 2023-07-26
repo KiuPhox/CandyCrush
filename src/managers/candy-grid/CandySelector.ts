@@ -6,12 +6,15 @@ import BoardManager from '../BoardManager'
 import CandyGrid from './CandyGrid'
 
 class CandySelector {
+    private static scene: GameScene
+
     public static firstSelectedCandy: Cell
     public static secondSelectedCandy: Cell
 
     private static selectedFrame: Phaser.GameObjects.Image
 
     public static init(scene: GameScene): void {
+        this.scene = scene
         this.firstSelectedCandy = undefined
         this.secondSelectedCandy = undefined
         this.selectedFrame = scene.add
@@ -44,7 +47,7 @@ class CandySelector {
                 const dx = Math.abs(this.firstSelectedCandy.gridX - this.secondSelectedCandy.gridX)
                 const dy = Math.abs(this.firstSelectedCandy.gridY - this.secondSelectedCandy.gridY)
 
-                if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
+                if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1) || this.scene.debug) {
                     BoardManager.updateState(BoardState.SWAP)
                     CandyGrid.trySwapCandies(this.firstSelectedCandy, this.secondSelectedCandy)
                 } else {

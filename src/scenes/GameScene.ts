@@ -16,7 +16,7 @@ class GameScene extends Phaser.Scene {
     private idleTimer: number
     private levelClear: boolean
     private currentLevel: number
-    private debug: boolean
+    public debug: boolean
 
     constructor() {
         super('GameScene')
@@ -164,6 +164,13 @@ class GameScene extends Phaser.Scene {
                     this.hintTween.stop()
                     this.hintTween.destroy()
                 }
+                break
+            case BoardState.FILL:
+                CandyGrid.resetCandy()
+                CandyGrid.fillCandy().then(() => {
+                    CandySelector.candyUp()
+                    this.checkMatches()
+                })
                 break
         }
     }

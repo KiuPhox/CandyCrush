@@ -199,7 +199,7 @@ class CandyRemover {
                 // Wrapped Candy
                 if (wrappedCandies.indexOf(candy) !== -1) {
                     const othersCandy = [...match.candies]
-                    othersCandy.splice(i)
+                    othersCandy.splice(i, 1)
                     combineCandyDelay = 50
                     this.scene.add.tween({
                         targets: othersCandy,
@@ -235,7 +235,7 @@ class CandyRemover {
 
                 // Remove the striped candy from the list
                 const otherCandies = [...match.candies]
-                otherCandies.splice(stripedCandyIndex)
+                otherCandies.splice(stripedCandyIndex, 1)
 
                 const stripedCandy: Candy = match.candies[stripedCandyIndex]
 
@@ -275,7 +275,7 @@ class CandyRemover {
                 )
 
                 const otherCandies = [...match.candies]
-                otherCandies.splice(2)
+                otherCandies.splice(2, 1)
                 combineCandyDelay = 50
                 this.scene.add.tween({
                     targets: otherCandies,
@@ -297,12 +297,6 @@ class CandyRemover {
             }
             this.scene.time.delayedCall(candyRemoveSet.removeDelay, () => {
                 BoardManager.updateState(BoardState.FILL)
-
-                CandyGrid.resetCandy()
-                CandyGrid.fillCandy().then(() => {
-                    CandySelector.candyUp()
-                    this.scene.checkMatches()
-                })
             })
         })
     }

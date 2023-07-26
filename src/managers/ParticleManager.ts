@@ -44,9 +44,9 @@ class ParticleManager {
             }
         })
 
-        // this.scene.input.on('pointerdown', () => {
-        //     this.playConfettiEffect()
-        // })
+        this.scene.input.keyboard?.on('keydown-C', () => {
+            this.playConfettiEffect()
+        })
     }
 
     public static playCandyExplodeEffect(x: number, y: number, color: number): void {
